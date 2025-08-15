@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Deployment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f3460, #16537e);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.3);
+            padding: 30px;
+            border-radius: 15px;
+        }
+        .status {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .success {
+            background: rgba(0,255,0,0.2);
+            border: 2px solid #00ff00;
+        }
+        .error {
+            background: rgba(255,0,0,0.2);
+            border: 2px solid #ff0000;
+        }
+        .timestamp {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-top: 10px;
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b35, #ff8e53);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Verificación de Deployment</h1>
+        <p>Esta página te ayuda a verificar si los cambios se han desplegado correctamente en Vercel.</p>
+        
+        <div id="status" class="status">
+            <div>⏳ Verificando estado del deployment...</div>
+            <div class="timestamp" id="timestamp"></div>
+        </div>
+        
+        <div>
+            <button onclick="checkDeployment()">🔄 Verificar Nuevamente</button>
+            <button onclick="window.location.href='/blackjack_trainer.html'">🎮 Ir al Juego</button>
+            <button onclick="window.location.href='/'">🏠 Página Principal</button>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px;">
+            <h3>📋 Instrucciones:</h3>
+            <ol>
+                <li>Si ves "✅ Deployment actualizado", los cambios están activos</li>
+                <li>Si ves "❌ Deployment desactualizado", espera 2-3 minutos y verifica nuevamente</li>
+                <li>Los deployments de Vercel pueden tardar hasta 5 minutos en propagarse</li>
+                <li>Si el problema persiste, puede ser necesario hacer un redeploy manual en Vercel</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Versión esperada del deployment (timestamp del último commit)
+        const EXPECTED_VERSION = 'v2024-01-20-fix-buttons';
+        const DEPLOYMENT_TIMESTAMP = new Date().toISOString();
+        
+        function updateTimestamp() {
+            document.getElementById('timestamp').textContent = 
+                `Última verificación: ${new Date().toLocaleString('es-ES')}`;
+        }
+        
+        function checkDeployment() {
+            const statusDiv = document.getElementById('status');
+            updateTimestamp();
+            
+            // Verificar si existe la función dealNewHand con el log actualizado
+            try {
+                // Crear un iframe temporal para cargar blackjack_trainer.html
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = '/blackjack_trainer.html';
+                
+                iframe.onload = function() {
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        const scriptContent = iframeDoc.documentElement.innerHTML;
+                        
+                        // Buscar el log actualizado
+                        if (scriptContent.includes('Intentando repartir nueva mano - versión actualizada')) {
+                            statusDiv.className = 'status success';
+                            statusDiv.innerHTML = `
+                                <div>✅ Deployment actualizado correctamente</div>
+                                <div style="font-size: 0.9rem; margin-top: 10px;">Los botones del juego deberían funcionar ahora</div>
+                                <div class="timestamp" id="timestamp"></div>
+                            `;
+                        } else {
+                            statusDiv.className = 'status error';
+                            statusDiv.innerHTML = `
+                                <div>❌ Deployment aún no actualizado</div>
+                                <div style="font-size: 0.9rem; margin-top: 10px;">Espera unos minutos y verifica nuevamente</div>
+                                <div class="timestamp" id="timestamp"></div>
+                            `;
+                        }
+                        updateTimestamp();
+                        document.body.removeChild(iframe);
+                    } catch (e) {
+                        statusDiv.className = 'status error';
+                        statusDiv.innerHTML = `
+                            <div>⚠️ No se pudo verificar el estado</div>
+                            <div style="font-size: 0.9rem; margin-top: 10px;">Error: ${e.message}</div>
+                            <div class="timestamp" id="timestamp"></div>
+                        `;
+                        updateTimestamp();
+                        document.body.removeChild(iframe);
+                    }
+                };
+                
+                iframe.onerror = function() {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `
+                        <div>❌ Error al cargar el juego</div>
+                        <div style="font-size: 0.9rem; margin-top: 10px;">No se pudo acceder a blackjack_trainer.html</div>
+                        <div class="timestamp" id="timestamp"></div>
+                    `;
+                    updateTimestamp();
+                    document.body.removeChild(iframe);
+                };
+                
+                document.body.appendChild(iframe);
+                
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `
+                    <div>❌ Error en la verificación</div>
+                    <div style="font-size: 0.9rem; margin-top: 10px;">${error.message}</div>
+                    <div class="timestamp" id="timestamp"></div>
+                `;
+                updateTimestamp();
+            }
+        }
+        
+        // Verificar automáticamente al cargar la página
+        window.onload = function() {
+            setTimeout(checkDeployment, 1000);
+        };
+    </script>
+</body>
+</html>

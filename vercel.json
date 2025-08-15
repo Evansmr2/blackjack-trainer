@@ -1,24 +1,12 @@
 {
-  "version": 2,
-  "name": "blackjack-trainer",
-  "builds": [
+  "rewrites": [
     {
-      "src": "**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/",
-      "dest": "/index.html"
+      "source": "/",
+      "destination": "/index.html"
     },
     {
-      "src": "/game",
-      "dest": "/blackjack_trainer.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/game",
+      "destination": "/blackjack_trainer.html"
     }
   ],
   "headers": [

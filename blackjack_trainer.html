@@ -1364,6 +1364,46 @@
                     this.handsPerPlayer = parseInt(e.target.value);
                     this.initializePlayers();
                 });
+    </script>
+    
+    <!-- Script para forzar deployment y verificar funcionalidad -->
+    <script src="force-deploy.js"></script>
+    <script>
+        // Verificar deployment después de cargar
+        setTimeout(() => {
+            if (typeof window.verifyButtonFunctionality === 'function') {
+                console.log('🔍 Verificando funcionalidad de botones...');
+                const allWorking = window.verifyButtonFunctionality();
+                if (allWorking) {
+                    console.log('✅ Todos los botones están funcionando correctamente');
+                } else {
+                    console.log('❌ Algunos botones no están funcionando');
+                }
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
+    </script>
+    
+    <!-- Script para forzar deployment y verificar funcionalidad -->
+    <script src="force-deploy.js"></script>
+    <script>
+        // Verificar deployment después de cargar
+        setTimeout(() => {
+            if (typeof window.verifyButtonFunctionality === 'function') {
+                console.log('🔍 Verificando funcionalidad de botones...');
+                const allWorking = window.verifyButtonFunctionality();
+                if (allWorking) {
+                    console.log('✅ Todos los botones están funcionando correctamente');
+                } else {
+                    console.log('❌ Algunos botones no están funcionando');
+                }
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
                 
                 document.getElementById('gameMode').addEventListener('change', (e) => {
                     this.gameMode = e.target.value;

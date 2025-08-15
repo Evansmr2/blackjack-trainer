@@ -69,25 +69,69 @@
             margin-right: auto;
         }
         
-        .play-button {
-            display: inline-block;
+        .games-section {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .game-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             background: linear-gradient(45deg, #d4af37, #ffd700);
             color: #000000;
-            padding: 18px 50px;
+            padding: 25px 35px;
             text-decoration: none;
-            border-radius: 8px;
-            font-size: 1.4rem;
+            border-radius: 12px;
             font-weight: bold;
             transition: all 0.3s ease;
             box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
             text-transform: uppercase;
             letter-spacing: 1px;
+            min-width: 150px;
         }
         
-        .play-button:hover {
+        .game-button:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(212, 175, 55, 0.6);
             background: linear-gradient(45deg, #ffd700, #ffed4e);
+        }
+        
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .game-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .blackjack-btn:hover {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+        }
+        
+        .roulette-btn {
+            background: linear-gradient(45deg, #dc143c, #ff6b6b);
+        }
+        
+        .roulette-btn:hover {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            box-shadow: 0 12px 35px rgba(220, 20, 60, 0.6);
+        }
+        
+        @media (max-width: 600px) {
+            .games-section {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-button {
+                width: 200px;
+            }
         }
         
         .background-pattern {
@@ -112,13 +156,23 @@
             🃏
         </div>
         
-        <h1 class="casino-title">BLACKJACK</h1>
+        <h1 class="casino-title">CASINO ONLINE</h1>
         
         <p class="casino-description">
-            Bienvenido al casino más exclusivo online. Experimenta la emoción del Blackjack clásico con gráficos elegantes y jugabilidad fluida. Juega solo o invita a tus amigos para una experiencia multijugador única.
+            Bienvenido al casino más exclusivo online. Experimenta la emoción de los juegos clásicos con gráficos elegantes y jugabilidad fluida. Elige tu juego favorito y disfruta de la experiencia.
         </p>
         
-        <a href="./blackjack_trainer.html" class="play-button">Jugar</a>
+        <div class="games-section">
+            <a href="./blackjack_trainer.html" class="game-button blackjack-btn">
+                <span class="game-icon">🃏</span>
+                <span class="game-name">BLACKJACK</span>
+            </a>
+            
+            <a href="./roulette.html" class="game-button roulette-btn">
+                <span class="game-icon">🎰</span>
+                <span class="game-name">RULETA</span>
+            </a>
+        </div>
     </div>
 </body>
 </html>

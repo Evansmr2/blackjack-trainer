@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple Blackjack</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f3460;
+            color: white;
+            padding: 20px;
+        }
+        .table {
+            background: #0d4f1c;
+            border: 8px solid #8B4513;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        .card {
+            width: 70px;
+            height: 100px;
+            background: white;
+            color: black;
+            border: 2px solid black;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Simple Blackjack</h1>
+    
+    <div class="table">
+        <div>
+            <h3>Dealer</h3>
+            <div id="dealerCards">
+                <div class="card">A♠</div>
+                <div class="card">?</div>
+            </div>
+        </div>
+        
+        <div>
+            <h3>Jugador</h3>
+            <div id="playerCards">
+                <div class="card">K♥</div>
+                <div class="card">5♦</div>
+            </div>
+        </div>
+    </div>
+    
+    <div>
+        <button onclick="testFunction()">Test Button</button>
+        <button onclick="addCard()">Agregar Carta</button>
+    </div>
+    
+    <div id="status">Estado: Listo</div>
+    
+    <script>
+        console.log('Script cargado correctamente');
+        
+        function testFunction() {
+            console.log('Botón clickeado!');
+            document.getElementById('status').textContent = 'Botón funcionando!';
+            alert('¡El botón funciona!');
+        }
+        
+        function addCard() {
+            const playerCards = document.getElementById('playerCards');
+            const newCard = document.createElement('div');
+            newCard.className = 'card';
+            newCard.textContent = '7♣';
+            playerCards.appendChild(newCard);
+            console.log('Carta agregada');
+        }
+        
+        // Test de inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado en test simple');
+            document.getElementById('status').textContent = 'DOM cargado correctamente';
+        });
+    </script>
+</body>
+</html>

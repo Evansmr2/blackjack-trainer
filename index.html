@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack Trainer - Juego Multijugador</title>
+    <meta name="description" content="Juego de Blackjack multijugador con múltiples manos y entrenamiento de estrategias">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f4c3a, #1a5f4a);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feature h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        .play-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        .play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+        .footer {
+            margin-top: 40px;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🃏 Blackjack Trainer</h1>
+        <p class="subtitle">Juego de Blackjack Multijugador con Múltiples Manos</p>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🎮 Multijugador</h3>
+                <p>Juega con tus amigos en tiempo real desde cualquier lugar del mundo</p>
+            </div>
+            <div class="feature">
+                <h3>🃏 Múltiples Manos</h3>
+                <p>Juega hasta 5 manos simultáneamente para maximizar la diversión</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Entrenamiento</h3>
+                <p>Mejora tus habilidades con estadísticas y análisis de jugadas</p>
+            </div>
+            <div class="feature">
+                <h3>🎨 Diseño Moderno</h3>
+                <p>Interfaz elegante y responsive que funciona en todos los dispositivos</p>
+            </div>
+        </div>
+        
+        <a href="./blackjack_trainer.html" class="play-button">🚀 ¡Jugar Ahora!</a>
+        
+        <div class="footer">
+            <p>Desarrollado con ❤️ para los amantes del Blackjack</p>
+            <p>Compatible con todos los navegadores modernos</p>
+        </div>
+    </div>
+</body>
+</html>

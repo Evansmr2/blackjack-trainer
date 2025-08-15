@@ -1,0 +1,30 @@
+{
+  "name": "blackjack-trainer",
+  "version": "1.0.0",
+  "description": "Juego de Blackjack multijugador con múltiples manos y entrenamiento de estrategias",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": [
+    "blackjack",
+    "casino",
+    "card-game",
+    "multiplayer",
+    "javascript",
+    "html5",
+    "game"
+  ],
+  "author": "Blackjack Trainer Team",
+  "license": "MIT",
+  "homepage": "https://github.com/username/blackjack-trainer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/blackjack-trainer.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

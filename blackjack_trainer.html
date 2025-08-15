@@ -1,0 +1,2680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Blackjack - Conteo Hi-Lo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f3460, #16537e);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .game-controls {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .betting-section {
+            background: rgba(255,215,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .bankroll-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .bankroll-item {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+
+        .bankroll-item h4 {
+            color: #ffd700;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .bankroll-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .betting-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .chip-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .chip-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #333;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .chip-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .chip-1 { background: white; color: black; }
+        .chip-5 { background: #ff0000; color: white; }
+        .chip-25 { background: #00ff00; color: black; }
+        .chip-100 { background: #000000; color: white; }
+        .chip-500 { background: #800080; color: white; }
+        
+        /* Fichas visuales en la mesa */
+        .chip {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            font-weight: bold;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .chip:hover {
+            transform: scale(1.1);
+        }
+        
+        .chip-1-visual { background: white; color: black; }
+        .chip-5-visual { background: #ff0000; color: white; }
+        .chip-25-visual { background: #00ff00; color: black; }
+        .chip-100-visual { background: #000000; color: white; }
+        .chip-500-visual { background: #800080; color: white; }
+
+        .bet-display {
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+
+        .bet-sizing-table {
+            background: rgba(255,255,255,0.9);
+            color: black;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .bet-sizing-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .bet-sizing-table th, .bet-sizing-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        .bet-sizing-table th {
+            background: #333;
+            color: white;
+            font-weight: bold;
+        }
+
+        .negative-count { background: #ffcccb; }
+        .neutral-count { background: #ffffcc; }
+        .positive-count { background: #90ee90; }
+        .high-count { background: #32cd32; }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .chart-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .chart-canvas {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            background: white;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .legend-item-chart {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-line {
+            width: 20px;
+            height: 3px;
+        }
+        
+        .ev-line { background: #ff0000; }
+        .actual-line { background: #ffd700; }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        select, input, button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff6b35, #ff8e53);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .game-area {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .count-display {
+            background: rgba(255,215,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .count-info {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .count-item {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .count-item h3 {
+            color: #ffd700;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .count-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .table {
+            background: radial-gradient(ellipse at center, #0d4f1c 0%, #0a3d16 70%, #073011 100%);
+            border: 12px solid #8B4513;
+            border-radius: 50% / 40%;
+            padding: 80px 120px 120px 120px;
+            margin: 20px 0;
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.5);
+            min-height: 800px;
+            width: 95%;
+            max-width: none;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .table::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: linear-gradient(45deg, #654321, #8B4513, #A0522D);
+            border-radius: 60% / 40%;
+            z-index: -1;
+        }
+        
+        #splitBtn {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+        }
+        
+        #splitBtn:hover {
+            background: linear-gradient(45deg, #8e44ad, #7d3c98);
+        }
+        
+        .bet-size-table {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .bet-size-table h3 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .bet-size-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .bet-size-table th,
+        .bet-size-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .bet-size-table th {
+            background: rgba(0,0,0,0.3);
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .progress-chart-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .progress-chart-container h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .progress-chart-container canvas {
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            max-width: 100%;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 10px;
+        }
+        
+        .chart-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .chart-legend .legend-line {
+            width: 30px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        .chart-legend .ev-line {
+            background: #ff0000;
+        }
+        
+        .chart-legend .actual-line {
+            background: #ffd700;
+        }
+        
+        .betting-spots {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 120px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .betting-spot {
+            width: 100px;
+            height: 100px;
+            border: 3px dashed #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.2);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .betting-spot.occupied {
+            border: 3px dashed #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .betting-spot.active-player {
+            border: 3px solid #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+        
+        .buy-in-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .buy-in-btn:hover {
+            background: linear-gradient(45deg, #45a049, #3d8b40);
+            transform: scale(1.05);
+        }
+        
+        .player-indicator {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .chip-stack {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .chip {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 10px;
+            margin-top: -15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .chip:first-child {
+            margin-top: 0;
+        }
+        
+        .chip-1-visual { background: white; color: black; }
+        .chip-5-visual { background: #ff0000; color: white; }
+        .chip-25-visual { background: #00ff00; color: black; }
+        .chip-100-visual { background: #000000; color: white; }
+        .chip-500-visual { background: #800080; color: white; }
+
+        .dealer-area {
+            margin: 20px 0;
+            text-align: center;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+        }
+        
+        .player-area {
+            margin: 20px 0;
+        }
+        
+        .players-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .player-section {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 5px;
+            min-width: 150px;
+            text-align: center;
+            position: absolute;
+            z-index: 10;
+        }
+        
+        .player-section.active {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        
+        .player-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .player-hands {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .hand-container {
+            border: 1px solid #666;
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .hand-container.active-hand {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.1);
+        }
+        
+        .hand-label {
+            font-size: 0.9em;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+        
+        .multiplayer-info {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .connected-players {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .player-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        
+        .split-section {
+            margin-top: 15px;
+            padding: 10px;
+            border: 2px solid #666;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .split-label {
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .area-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .cards {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 5px;
+            justify-content: center;
+        }
+
+        .card {
+            width: 70px;
+            height: 100px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            position: relative;
+            opacity: 0;
+            transform: translateY(-50px) rotateY(180deg);
+            animation: dealCard 0.5s ease-out forwards;
+        }
+        
+        @keyframes dealCard {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px) rotateY(180deg);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0) rotateY(90deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateY(0deg);
+            }
+        }
+
+        .card.red {
+            background: white;
+            color: #dc143c;
+            border: 2px solid #dc143c;
+        }
+
+        .card.black {
+            background: white;
+            color: black;
+            border: 2px solid black;
+        }
+
+        .card.hidden {
+            background: #4169e1;
+            color: white;
+            border: 2px solid #191970;
+        }
+
+        .hand-value {
+            font-size: 1.0rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-top: 3px;
+        }
+
+        .game-info-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+        
+        .info-label {
+            font-size: 0.9em;
+            color: #ccc;
+            margin-bottom: 2px;
+        }
+        
+        .info-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .game-actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .game-actions button {
+            margin: 0 10px;
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+
+        .sidebar {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .strategy-table {
+            background: rgba(255,255,255,0.9);
+            color: black;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .strategy-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .strategy-table th, .strategy-table td {
+            padding: 4px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        .strategy-table th {
+            background: #333;
+            color: white;
+            font-weight: bold;
+        }
+
+        .hit { background: #ffcccb; }
+        .stand { background: #90ee90; }
+        .double { background: #ffd700; }
+        .split { background: #87ceeb; }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            font-size: 10px;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border: 1px solid #333;
+        }
+
+        .shoe-info {
+            background: rgba(255,215,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .shoe-info h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b35, #ff8e53);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .game-status {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .status-win {
+            background: rgba(0,255,0,0.2);
+            color: #90ee90;
+        }
+
+        .status-lose {
+            background: rgba(255,0,0,0.2);
+            color: #ffcccb;
+        }
+
+        .status-push {
+            background: rgba(255,255,0,0.2);
+            color: #ffd700;
+        }
+        
+        .strategy-advice {
+            text-align: center;
+            font-size: 1rem;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(0, 100, 0, 0.8);
+            color: white;
+            border: 2px solid #32cd32;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .game-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🃏 Simulador de Blackjack - Conteo Hi-Lo 🃏</h1>
+        </div>
+
+        <div class="game-controls">
+            <div class="control-group">
+                <label>Mazos:</label>
+                <select id="deckCount">
+                    <option value="1">1 Mazo</option>
+                    <option value="2">2 Mazos</option>
+                    <option value="4" selected>4 Mazos</option>
+                    <option value="6">6 Mazos</option>
+                    <option value="8">8 Mazos</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Penetración:</label>
+                <select id="penetration">
+                    <option value="50">50%</option>
+                    <option value="60">60%</option>
+                    <option value="70" selected>70%</option>
+                    <option value="80">80%</option>
+                    <option value="90">90%</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Manos por Jugador:</label>
+                <select id="handsPerPlayer">
+                    <option value="1" selected>1 Mano</option>
+                    <option value="2">2 Manos</option>
+                    <option value="3">3 Manos</option>
+                    <option value="4">4 Manos</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Modo de Juego:</label>
+                <select id="gameMode">
+                    <option value="single" selected>Un Jugador</option>
+                    <option value="multi">Multijugador</option>
+                </select>
+            </div>
+            <div class="control-group" id="playerNameGroup" style="display: none;">
+                <label>Tu Nombre:</label>
+                <input type="text" id="playerName" placeholder="Ingresa tu nombre" maxlength="20">
+                <button id="joinGame">Unirse al Juego</button>
+            </div>
+            <button id="newShoe">Nuevo Taco</button>
+            <button id="resetCount">Reset Cuenta</button>
+        </div>
+
+        <div class="betting-section">
+            <div class="bankroll-info">
+                <div class="bankroll-item">
+                    <h4>Bankroll</h4>
+                    <div class="bankroll-value" id="bankroll">$1000</div>
+                </div>
+                <div class="bankroll-item">
+                    <h4>Apuesta Actual</h4>
+                    <div class="bankroll-value" id="currentBet">$0</div>
+                </div>
+                <div class="bankroll-item">
+                    <h4>Apuesta Sugerida</h4>
+                    <div class="bankroll-value" id="suggestedBet">$10</div>
+                </div>
+                <div class="bankroll-item">
+                    <h4>Manos Jugadas</h4>
+                    <div class="bankroll-value" id="handsPlayed">0</div>
+                </div>
+            </div>
+            
+
+        </div>
+
+        <div class="main-content">
+            <div class="game-area">
+                <div class="count-display">
+                    <div class="count-info">
+                        <div class="count-item">
+                            <h3>Cuenta Real</h3>
+                            <div class="count-value" id="runningCount">0</div>
+                        </div>
+                        <div class="count-item">
+                            <h3>Cuenta Verdadera</h3>
+                            <div class="count-value" id="trueCount">0.0</div>
+                        </div>
+                        <div class="count-item">
+                            <h3>Cartas Jugadas</h3>
+                            <div class="count-value" id="cardsPlayed">0</div>
+                        </div>
+                        <div class="count-item">
+                            <h3>Ventaja</h3>
+                            <div class="count-value" id="advantage">0.0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table">
+                    <div class="dealer-area">
+                        <div class="area-title">Dealer</div>
+                        <div class="cards" id="dealerCards"></div>
+                        <div class="hand-value" id="dealerValue"></div>
+                    </div>
+
+                    <div class="players-container" id="playersContainer">
+                        <!-- Los jugadores se generarán dinámicamente aquí -->
+                    </div>
+                    
+                    <div class="betting-spots" id="bettingSpots">
+                        <div class="betting-spot" id="spot1">
+                            <button class="buy-in-btn" onclick="buyInToSpot(1)">Buy In</button>
+                        </div>
+                        <div class="betting-spot" id="spot2">
+                            <button class="buy-in-btn" onclick="buyInToSpot(2)">Buy In</button>
+                        </div>
+                        <div class="betting-spot" id="spot3">
+                            <button class="buy-in-btn" onclick="buyInToSpot(3)">Buy In</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-status" id="gameStatus"></div>
+                
+                <div class="strategy-advice" id="strategyAdvice" style="display: none;">
+                    <div class="advice-content">
+                        <strong>Consejo:</strong> <span id="adviceText"></span>
+                    </div>
+                </div>
+
+                <div class="betting-controls">
+                    <div class="chip-buttons">
+                        <button class="chip-btn chip-1" onclick="addBet(1)">$1</button>
+                        <button class="chip-btn chip-5" onclick="addBet(5)">$5</button>
+                        <button class="chip-btn chip-25" onclick="addBet(25)">$25</button>
+                        <button class="chip-btn chip-100" onclick="addBet(100)">$100</button>
+                        <button class="chip-btn chip-500" onclick="addBet(500)">$500</button>
+                    </div>
+                    <div class="bet-display">
+                        <span>Apuesta: $</span>
+                        <span id="betAmount">0</span>
+                    </div>
+                    <div class="bet-actions">
+                        <button onclick="clearBet()">Limpiar</button>
+                        <button onclick="maxBet()">Máximo</button>
+                        <button onclick="setBankroll()">Config</button>
+                    </div>
+                </div>
+
+                <div class="game-actions">
+                    <button id="dealBtn">Repartir</button>
+                    <button id="hitBtn" disabled>Pedir</button>
+                    <button id="standBtn" disabled>Plantarse</button>
+                    <button id="doubleBtn" disabled>Doblar</button>
+                    <button id="splitBtn" disabled>Dividir</button>
+                </div>
+                
+                <div class="chip-stack" id="chipStack"></div>
+                
+                <!-- Tabla de Tamaño de Apuesta -->
+                <div class="bet-size-table">
+                    <h3>Tamaño de Apuesta por Cuenta Verdadera</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cuenta Verdadera</th>
+                                <th>% del Bankroll</th>
+                                <th>Unidades</th>
+                                <th>Apuesta Sugerida</th>
+                                <th>Ventaja Estimada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="negative-count">
+                                <td>-3 o menos</td>
+                                <td>0%</td>
+                                <td>0</td>
+                                <td>$0 (No jugar)</td>
+                                <td>-2.5%</td>
+                            </tr>
+                            <tr class="negative-count">
+                                <td>-2</td>
+                                <td>0%</td>
+                                <td>0</td>
+                                <td>$0 (No jugar)</td>
+                                <td>-1.5%</td>
+                            </tr>
+                            <tr class="negative-count">
+                                <td>-1</td>
+                                <td>0.5%</td>
+                                <td>0.5</td>
+                                <td>$5</td>
+                                <td>-0.5%</td>
+                            </tr>
+                            <tr class="neutral-count">
+                                <td>0</td>
+                                <td>1%</td>
+                                <td>1</td>
+                                <td>$10</td>
+                                <td>-0.5%</td>
+                            </tr>
+                            <tr class="positive-count">
+                                <td>+1</td>
+                                <td>1.5%</td>
+                                <td>1.5</td>
+                                <td>$15</td>
+                                <td>+0.5%</td>
+                            </tr>
+                            <tr class="positive-count">
+                                <td>+2</td>
+                                <td>2%</td>
+                                <td>2</td>
+                                <td>$20</td>
+                                <td>+1.0%</td>
+                            </tr>
+                            <tr class="positive-count">
+                                <td>+3</td>
+                                <td>2.5%</td>
+                                <td>2.5</td>
+                                <td>$25</td>
+                                <td>+1.5%</td>
+                            </tr>
+                            <tr class="positive-count">
+                                <td>+4</td>
+                                <td>3%</td>
+                                <td>3</td>
+                                <td>$30</td>
+                                <td>+2.0%</td>
+                            </tr>
+                            <tr class="positive-count">
+                                <td>+5</td>
+                                <td>3.5%</td>
+                                <td>3.5</td>
+                                <td>$35</td>
+                                <td>+2.5%</td>
+                            </tr>
+                            <tr class="positive-count">
+                                <td>+6 o más</td>
+                                <td>4%</td>
+                                <td>4</td>
+                                <td>$40</td>
+                                <td>+3.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Gráfica de Progreso -->
+                <div class="progress-chart-container">
+                    <h3>Progreso de Ganancias vs EV Esperado</h3>
+                    <canvas id="progressChart" width="600" height="300"></canvas>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-line ev-line"></div>
+                            <span>EV Esperado</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-line actual-line"></div>
+                            <span>Ganancias Reales</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="shoe-info">
+                    <h3>Estado del Taco</h3>
+                    <div>Cartas restantes: <span id="remainingCards">208</span></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div>Mazos restantes: <span id="remainingDecks">4.0</span></div>
+                </div>
+
+                <h2>Estrategia Básica</h2>
+                <div class="strategy-table">
+                    <table>
+                        <tr>
+                            <th>Tu Mano</th>
+                            <th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>A</th>
+                        </tr>
+                        <tr><th>5-8</th><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>9</th><td class="hit">H</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>10</th><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>11</th><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td></tr>
+                        <tr><th>12</th><td class="hit">H</td><td class="hit">H</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>13</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>14</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>15</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>16</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>17-21</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td></tr>
+                        
+                        <!-- Manos Suaves (con As) -->
+                        <tr style="background: #e6f3ff;"><th colspan="11"><strong>MANOS SUAVES (con As)</strong></th></tr>
+                        <tr><th>A,2</th><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>A,3</th><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>A,4</th><td class="hit">H</td><td class="hit">H</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>A,5</th><td class="hit">H</td><td class="hit">H</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>A,6</th><td class="hit">H</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>A,7</th><td class="stand">S</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="stand">S</td><td class="stand">S</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>A,8</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td></tr>
+                        <tr><th>A,9</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td></tr>
+                        
+                        <!-- Pares -->
+                        <tr style="background: #fff2e6;"><th colspan="11"><strong>PARES</strong></th></tr>
+                        <tr><th>A,A</th><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td></tr>
+                        <tr><th>2,2</th><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>3,3</th><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>4,4</th><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="split">P</td><td class="split">P</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>5,5</th><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="double">D</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>6,6</th><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>7,7</th><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td><td class="hit">H</td></tr>
+                        <tr><th>8,8</th><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td></tr>
+                        <tr><th>9,9</th><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="split">P</td><td class="stand">S</td><td class="split">P</td><td class="split">P</td><td class="stand">S</td><td class="stand">S</td></tr>
+                        <tr><th>10,10</th><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td><td class="stand">S</td></tr>
+                    </table>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color hit"></div>
+                            <span>H = Pedir</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color stand"></div>
+                            <span>S = Plantarse</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color double"></div>
+                            <span>D = Doblar</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color split"></div>
+                            <span>P = Separar</span>
+                        </div>
+                    </div>
+                </div>
+                
+
+             </div>
+         </div>
+     </div>
+
+    <script>
+        class BlackjackTrainer {
+            constructor() {
+                console.log('Iniciando constructor de BlackjackTrainer...');
+                this.shoe = [];
+                this.dealerHand = [];
+                this.playerHand = [];
+                this.splitHand = [];
+                this.runningCount = 0;
+                this.cardsPlayed = 0;
+                this.gameInProgress = false;
+                this.dealerHiddenCard = null;
+                this.hasSplit = false;
+                this.currentHand = 'main'; // 'main' o 'split'
+                
+                // Sistema multijugador y múltiples manos
+                this.gameMode = 'single'; // 'single' o 'multi'
+                this.handsPerPlayer = 1;
+                this.players = [];
+                this.currentPlayerIndex = 0;
+                this.currentHandIndex = 0;
+                this.connectedPlayers = new Map();
+                this.playerId = this.generatePlayerId();
+                this.playerName = '';
+                
+                // Sistema de apuestas
+            this.bankroll = 1000;
+            this.currentBet = 0;
+            this.handsPlayed = 0;
+            this.totalWinnings = 0;
+            
+            // Sistema de spots de buy-in
+            this.spots = {
+                1: { occupied: false, playerId: null, playerName: '', active: false },
+                2: { occupied: false, playerId: null, playerName: '', active: false },
+                3: { occupied: false, playerId: null, playerName: '', active: false }
+            };
+            this.currentSpot = null;
+            
+            // Datos para la gráfica
+            this.evData = [];
+            this.actualData = [];
+            this.cumulativeEV = 0;
+            this.cumulativeActual = 0;
+            
+            // Canvas para la gráfica
+            this.chart = null;
+            this.chartCtx = null;
+                
+                console.log('Inicializando elementos...');
+                this.initializeElements();
+                console.log('Configurando event listeners...');
+                this.setupEventListeners();
+                console.log('Creando nuevo taco...');
+            this.newShoe();
+            this.updateBankrollDisplay();
+            this.initializeChart();
+            console.log('Constructor completado.');
+            }
+
+            initializeElements() {
+                this.elements = {
+                    deckCount: document.getElementById('deckCount'),
+                    penetration: document.getElementById('penetration'),
+                    runningCount: document.getElementById('runningCount'),
+                    trueCount: document.getElementById('trueCount'),
+                    cardsPlayed: document.getElementById('cardsPlayed'),
+                    advantage: document.getElementById('advantage'),
+                    remainingCards: document.getElementById('remainingCards'),
+                    remainingDecks: document.getElementById('remainingDecks'),
+                    progressFill: document.getElementById('progressFill'),
+                    dealerCards: document.getElementById('dealerCards'),
+                    playerCards: document.getElementById('playerCards'),
+                    dealerValue: document.getElementById('dealerValue'),
+                    playerValue: document.getElementById('playerValue'),
+                    gameStatus: document.getElementById('gameStatus'),
+                    dealBtn: document.getElementById('dealBtn'),
+                    hitBtn: document.getElementById('hitBtn'),
+                    standBtn: document.getElementById('standBtn'),
+                    doubleBtn: document.getElementById('doubleBtn'),
+                    splitBtn: document.getElementById('splitBtn'),
+                    newShoeBtn: document.getElementById('newShoe'),
+                    resetCountBtn: document.getElementById('resetCount'),
+                    bankroll: document.getElementById('bankroll'),
+                    currentBet: document.getElementById('currentBet'),
+                    suggestedBet: document.getElementById('suggestedBet'),
+                    handsPlayed: document.getElementById('handsPlayed'),
+                    betAmount: document.getElementById('betAmount'),
+                    chipStack: document.getElementById('chipStack'),
+                    progressChart: document.getElementById('progressChart')
+                };
+                
+                // Verificar que los elementos críticos existan
+                const criticalElements = ['dealerCards', 'dealerValue', 'gameStatus', 'dealBtn', 'hitBtn', 'standBtn', 'doubleBtn', 'splitBtn'];
+                for (let key of criticalElements) {
+                    if (!this.elements[key]) {
+                        console.error(`Elemento crítico no encontrado: ${key}`);
+                        alert(`Error: No se pudo encontrar el elemento crítico ${key}. Revisa el HTML.`);
+                    }
+                }
+                
+                // Elementos opcionales (para compatibilidad con el sistema anterior)
+                const optionalElements = ['playerCards', 'playerValue'];
+                for (let key of optionalElements) {
+                    if (!this.elements[key]) {
+                        console.warn(`Elemento opcional no encontrado: ${key} (esto es normal con el nuevo sistema)`);
+                    }
+                }
+            }
+
+            setupEventListeners() {
+                this.elements.newShoeBtn.addEventListener('click', () => this.newShoe());
+                this.elements.resetCountBtn.addEventListener('click', () => this.resetCount());
+                this.elements.dealBtn.addEventListener('click', () => this.dealNewHand());
+                this.elements.hitBtn.addEventListener('click', () => this.hit());
+                this.elements.standBtn.addEventListener('click', () => this.stand());
+                this.elements.doubleBtn.addEventListener('click', () => this.double());
+                this.elements.splitBtn.addEventListener('click', () => this.split());
+                this.elements.deckCount.addEventListener('change', () => this.newShoe());
+                this.elements.penetration.addEventListener('change', () => this.updateShoeDisplay());
+                
+                // Event listeners para múltiples manos y multijugador
+                document.getElementById('handsPerPlayer').addEventListener('change', (e) => {
+                    this.handsPerPlayer = parseInt(e.target.value);
+                    this.initializePlayers();
+                });
+                
+                document.getElementById('gameMode').addEventListener('change', (e) => {
+                    this.gameMode = e.target.value;
+                    this.toggleMultiplayerControls();
+                });
+                
+                document.getElementById('joinGame').addEventListener('click', () => {
+                    this.joinMultiplayerGame();
+                });
+            }
+            
+            generatePlayerId() {
+                return 'player_' + Math.random().toString(36).substr(2, 9);
+            }
+            
+            toggleMultiplayerControls() {
+                const playerNameGroup = document.getElementById('playerNameGroup');
+                if (this.gameMode === 'multi') {
+                    playerNameGroup.style.display = 'block';
+                } else {
+                    playerNameGroup.style.display = 'none';
+                    this.initializePlayers();
+                }
+            }
+            
+            joinMultiplayerGame() {
+                const playerNameInput = document.getElementById('playerName');
+                this.playerName = playerNameInput.value.trim();
+                
+                if (!this.playerName) {
+                    alert('Por favor ingresa tu nombre');
+                    return;
+                }
+                
+                // Simular conexión multijugador (en una implementación real usarías WebSockets)
+                this.connectedPlayers.set(this.playerId, {
+                    id: this.playerId,
+                    name: this.playerName,
+                    bankroll: this.bankroll,
+                    hands: []
+                });
+                
+                this.initializePlayers();
+                this.updateMultiplayerDisplay();
+                
+                alert(`¡Bienvenido ${this.playerName}! Te has unido al juego.`);
+            }
+            
+            initializePlayers() {
+                this.players = [];
+                
+                if (this.gameMode === 'single') {
+                    // Modo un jugador
+                    const player = {
+                        id: this.playerId,
+                        name: this.playerName || 'Jugador',
+                        bankroll: this.bankroll,
+                        hands: []
+                    };
+                    
+                    // Crear las manos según handsPerPlayer
+                    for (let i = 0; i < this.handsPerPlayer; i++) {
+                        player.hands.push({
+                            cards: [],
+                            bet: 0,
+                            splitHand: [],
+                            hasSplit: false,
+                            isActive: i === 0
+                        });
+                    }
+                    
+                    this.players.push(player);
+                } else {
+                    // Modo multijugador
+                    for (let [playerId, playerData] of this.connectedPlayers) {
+                        const player = {
+                            id: playerId,
+                            name: playerData.name,
+                            bankroll: playerData.bankroll,
+                            hands: []
+                        };
+                        
+                        // Crear las manos según handsPerPlayer
+                        for (let i = 0; i < this.handsPerPlayer; i++) {
+                            player.hands.push({
+                                cards: [],
+                                bet: 0,
+                                splitHand: [],
+                                hasSplit: false,
+                                isActive: i === 0
+                            });
+                        }
+                        
+                        this.players.push(player);
+                    }
+                }
+                
+                this.currentPlayerIndex = 0;
+                this.currentHandIndex = 0;
+                this.updatePlayersDisplay();
+            }
+            
+            updateMultiplayerDisplay() {
+                // Crear o actualizar la información de multijugador
+                let multiplayerInfo = document.querySelector('.multiplayer-info');
+                if (!multiplayerInfo) {
+                    multiplayerInfo = document.createElement('div');
+                    multiplayerInfo.className = 'multiplayer-info';
+                    document.querySelector('.table').insertBefore(multiplayerInfo, document.querySelector('.players-container'));
+                }
+                
+                if (this.gameMode === 'multi' && this.connectedPlayers.size > 0) {
+                    multiplayerInfo.innerHTML = `
+                        <h3>Jugadores Conectados (${this.connectedPlayers.size})</h3>
+                        <div class="connected-players">
+                            ${Array.from(this.connectedPlayers.values()).map(player => 
+                                `<div class="player-badge">${player.name}</div>`
+                            ).join('')}
+                        </div>
+                    `;
+                    multiplayerInfo.style.display = 'block';
+                } else {
+                    multiplayerInfo.style.display = 'none';
+                }
+            }
+            
+            updatePlayersDisplay() {
+                const playersContainer = document.getElementById('playersContainer');
+                playersContainer.innerHTML = '';
+                
+                // Posiciones para cada spot (relativas al centro de la mesa)
+                const spotPositions = {
+                    1: { bottom: '180px', left: 'calc(50% - 200px)' },
+                    2: { bottom: '180px', left: '50%' },
+                    3: { bottom: '180px', left: 'calc(50% + 200px)' }
+                };
+                
+                this.players.forEach((player, playerIndex) => {
+                    if (player) {
+                        const playerSection = document.createElement('div');
+                        playerSection.className = 'player-section';
+                        if (playerIndex === this.currentPlayerIndex) {
+                            playerSection.classList.add('active');
+                        }
+                        
+                        // Posicionar cerca del spot correspondiente
+                        const spotNumber = playerIndex + 1;
+                        if (spotPositions[spotNumber]) {
+                            playerSection.style.bottom = spotPositions[spotNumber].bottom;
+                            playerSection.style.left = spotPositions[spotNumber].left;
+                            playerSection.style.transform = 'translateX(-50%)';
+                        }
+                        
+                        playerSection.innerHTML = `
+                            <div class="player-name">${player.name}</div>
+                            <div class="player-hands">
+                                ${player.hands.map((hand, handIndex) => `
+                                    <div class="hand-container ${hand.isActive ? 'active-hand' : ''}">
+                                        <div class="cards hand-cards" data-player="${playerIndex}" data-hand="${handIndex}"></div>
+                                        <div class="hand-value" data-player="${playerIndex}" data-hand="${handIndex}"></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        
+                        playersContainer.appendChild(playerSection);
+                    }
+                });
+                
+                this.updateHandDisplays();
+            }
+
+            createDeck() {
+                const suits = ['♠', '♥', '♦', '♣'];
+                const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+                const deck = [];
+
+                for (let suit of suits) {
+                    for (let rank of ranks) {
+                        const card = {
+                            suit: suit,
+                            rank: rank,
+                            value: this.getCardValue(rank),
+                            hiLoValue: this.getHiLoValue(rank),
+                            color: (suit === '♥' || suit === '♦') ? 'red' : 'black'
+                        };
+                        deck.push(card);
+                    }
+                }
+                return deck;
+            }
+
+            getCardValue(rank) {
+                if (rank === 'A') return 11;
+                if (['J', 'Q', 'K'].includes(rank)) return 10;
+                return parseInt(rank);
+            }
+
+            getHiLoValue(rank) {
+                if (['2', '3', '4', '5', '6'].includes(rank)) return 1;
+                if (['7', '8', '9'].includes(rank)) return 0;
+                return -1; // 10, J, Q, K, A
+            }
+
+            newShoe() {
+                const deckCount = parseInt(this.elements.deckCount.value);
+                this.shoe = [];
+                
+                for (let i = 0; i < deckCount; i++) {
+                    this.shoe.push(...this.createDeck());
+                }
+                
+                // Barajar las cartas una sola vez al crear el taco
+                this.shuffleArray(this.shoe);
+                
+                this.cardsPlayed = 0;
+                this.runningCount = 0;
+                this.updateDisplay();
+                this.updateShoeDisplay();
+                this.resetHands();
+                this.elements.gameStatus.textContent = 'Nuevo taco creado. ¡Haz clic en "Repartir" para comenzar!';
+                this.elements.gameStatus.className = 'game-status';
+            }
+
+            resetCount() {
+                this.runningCount = 0;
+                this.updateDisplay();
+            }
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            dealCard() {
+                if (this.shoe.length === 0) {
+                    alert('El taco está vacío. Creando nuevo taco...');
+                    this.newShoe();
+                }
+                
+                const card = this.shoe.pop();
+                this.cardsPlayed++;
+                this.runningCount += card.hiLoValue;
+                this.updateDisplay();
+                return card;
+            }
+
+            dealNewHand() {
+                console.log('Intentando repartir nueva mano...');
+                console.log('Cartas en el taco:', this.shoe.length);
+                
+                // Verificar que haya una apuesta
+                if (this.currentBet <= 0) {
+                    alert('Debes hacer una apuesta antes de repartir las cartas.');
+                    return;
+                }
+                
+                // Verificar que el bankroll sea suficiente
+                if (this.currentBet > this.bankroll) {
+                    alert('No tienes suficiente dinero para esta apuesta.');
+                    return;
+                }
+                
+                if (this.needNewShoe()) {
+                    alert('Se ha alcanzado el punto de penetración. Creando nuevo taco...');
+                    this.newShoe();
+                    return;
+                }
+
+                // Calcular cartas necesarias: 2 por jugador por mano + 2 para el dealer
+                const totalHands = this.players.reduce((sum, player) => sum + player.hands.length, 0);
+                const cardsNeeded = (totalHands * 2) + 2;
+                
+                if (this.shoe.length < cardsNeeded) {
+                    alert('No hay suficientes cartas en el taco. Creando nuevo taco...');
+                    this.newShoe();
+                    return;
+                }
+
+                this.resetHands();
+                this.gameInProgress = true;
+                this.currentPlayerIndex = 0;
+                this.currentHandIndex = 0;
+                
+                console.log('Repartiendo cartas...');
+                
+                // Repartir cartas con animación secuencial
+                let cardDelay = 0;
+                const delayIncrement = 0.3;
+                
+                // Repartir primera carta a todos los jugadores y todas las manos
+                this.players.forEach(player => {
+                    if (player) {
+                        player.hands.forEach(hand => {
+                            hand.cards.push(this.dealCard());
+                            cardDelay += delayIncrement;
+                        });
+                    }
+                });
+                
+                // Repartir primera carta al dealer
+                this.dealerHand.push(this.dealCard());
+                cardDelay += delayIncrement;
+                
+                // Repartir segunda carta a todos los jugadores y todas las manos
+                this.players.forEach(player => {
+                    if (player) {
+                        player.hands.forEach(hand => {
+                            hand.cards.push(this.dealCard());
+                            cardDelay += delayIncrement;
+                        });
+                    }
+                });
+                
+                // Carta oculta del dealer
+                this.dealerHiddenCard = this.dealCard();
+                cardDelay += delayIncrement;
+                
+                // Actualizar variables de compatibilidad para el jugador actual
+                if (this.players.length > 0) {
+                    const currentPlayer = this.players[this.currentPlayerIndex];
+                    const currentHand = currentPlayer.hands[this.currentHandIndex];
+                    this.playerHand = currentHand.cards;
+                    this.splitHand = currentHand.splitHand;
+                    this.hasSplit = currentHand.hasSplit;
+                }
+                
+                console.log('Jugadores y manos:', this.players);
+                console.log('Mano del dealer:', this.dealerHand);
+                console.log('Carta oculta del dealer:', this.dealerHiddenCard);
+                
+                this.updateHandDisplays();
+                this.updateGameButtons();
+                this.elements.gameStatus.textContent = '¡Mano repartida! Elige tu acción.';
+                this.elements.gameStatus.className = 'game-status';
+                
+                // Mostrar consejos de estrategia después de un breve retraso
+                setTimeout(() => {
+                    this.showStrategyAdvice();
+                }, 1500);
+                
+                // Verificar blackjack natural para el jugador actual
+                if (this.players.length > 0) {
+                    const currentPlayer = this.players[this.currentPlayerIndex];
+                    const currentHand = currentPlayer.hands[this.currentHandIndex];
+                    const playerValue = this.getHandValue(currentHand.cards);
+                    const dealerValue = this.getHandValue(this.dealerHand) + (this.dealerHiddenCard ? this.dealerHiddenCard.value : 0);
+                    
+                    if (playerValue === 21 || dealerValue === 21) {
+                        setTimeout(() => {
+                            this.checkForBlackjack();
+                        }, 1000);
+                    }
+                }
+            }
+
+            hit() {
+                const currentHandArray = this.currentHand === 'main' ? this.playerHand : this.splitHand;
+                currentHandArray.push(this.dealCard());
+                this.updateHandDisplays();
+                
+                if (this.getHandValue(currentHandArray) > 21) {
+                    if (this.hasSplit && this.currentHand === 'main') {
+                        this.switchToSplitHand();
+                    } else {
+                        this.revealDealerCard();
+                        this.endHand();
+                    }
+                } else if (this.getHandValue(currentHandArray) === 21) {
+                    this.stand();
+                }
+            }
+
+            stand() {
+                if (this.hasSplit && this.currentHand === 'main') {
+                    this.switchToSplitHand();
+                } else {
+                    this.revealDealerCard();
+                    this.finishDealer();
+                    this.endHand();
+                }
+            }
+
+            double() {
+                this.playerHand.push(this.dealCard());
+                this.updateHandDisplays();
+                this.revealDealerCard();
+                
+                if (this.getHandValue(this.playerHand) <= 21) {
+                    this.finishDealer();
+                }
+                this.endHand();
+            }
+
+            split() {
+                if (this.playerHand.length !== 2 || 
+                    this.getCardValue(this.playerHand[0]) !== this.getCardValue(this.playerHand[1]) ||
+                    this.hasSplit) {
+                    return;
+                }
+                
+                // Dividir las cartas
+                this.splitHand = [this.playerHand.pop()];
+                this.hasSplit = true;
+                this.currentHand = 'main';
+                
+                // Repartir una carta a cada mano
+                this.playerHand.push(this.dealCard());
+                this.splitHand.push(this.dealCard());
+                
+                this.updateHandDisplays();
+                this.updateGameButtons();
+                
+                this.elements.gameStatus.textContent = 'Jugando mano principal - Elige tu acción';
+            }
+
+            switchToSplitHand() {
+                this.currentHand = 'split';
+                this.updateGameButtons();
+                this.elements.gameStatus.textContent = 'Jugando mano dividida - Elige tu acción';
+            }
+
+            finishDealer() {
+                while (this.getHandValue(this.dealerHand) < 17) {
+                    this.dealerHand.push(this.dealCard());
+                    this.updateHandDisplays();
+                }
+            }
+
+            revealDealerCard() {
+                if (this.dealerHiddenCard) {
+                    this.dealerHand.push(this.dealerHiddenCard);
+                    this.dealerHiddenCard = null;
+                    this.updateHandDisplays();
+                }
+            }
+
+            endHand() {
+                if (this.hasSplit) {
+                    // Calcular resultado para ambas manos
+                    const mainValue = this.getHandValue(this.playerHand);
+                    const splitValue = this.getHandValue(this.splitHand);
+                    const dealerValue = this.getHandValue(this.dealerHand);
+                    
+                    let totalWinnings = 0;
+                    let results = [];
+                    
+                    // Evaluar mano principal
+                    const mainResult = this.evaluateHand(mainValue, dealerValue);
+                    totalWinnings += mainResult.winnings;
+                    results.push(`Principal: ${mainResult.text}`);
+                    
+                    // Evaluar mano dividida
+                    const splitResult = this.evaluateHand(splitValue, dealerValue);
+                    totalWinnings += splitResult.winnings;
+                    results.push(`Dividida: ${splitResult.text}`);
+                    
+                    const combinedResult = results.join(' | ');
+                    const statusClass = totalWinnings > 0 ? 'status-win' : totalWinnings < 0 ? 'status-lose' : 'status-push';
+                    
+                    this.endGame(combinedResult, statusClass, totalWinnings);
+                } else {
+                    // Mano normal
+                    const playerValue = this.getHandValue(this.playerHand);
+                    const dealerValue = this.getHandValue(this.dealerHand);
+                    
+                    const result = this.evaluateHand(playerValue, dealerValue);
+                    const statusClass = result.winnings > 0 ? 'status-win' : result.winnings < 0 ? 'status-lose' : 'status-push';
+                    
+                    this.endGame(result.text, statusClass, result.winnings);
+                }
+            }
+            
+            evaluateHand(playerValue, dealerValue) {
+                let winnings = 0;
+                let text = '';
+                
+                if (playerValue > 21) {
+                    text = 'Te pasaste';
+                    winnings = -this.currentBet;
+                } else if (dealerValue > 21) {
+                    text = 'Dealer se pasó';
+                    winnings = this.currentBet;
+                } else if (playerValue > dealerValue) {
+                    text = 'Ganas';
+                    winnings = this.currentBet;
+                } else if (dealerValue > playerValue) {
+                    text = 'Dealer gana';
+                    winnings = -this.currentBet;
+                } else {
+                    text = 'Empate';
+                    winnings = 0;
+                }
+                
+                return { text, winnings };
+            }
+
+            resetHands() {
+                this.dealerHand = [];
+                this.dealerHiddenCard = null;
+                this.gameInProgress = false;
+                this.currentHand = 'main';
+                
+                // Resetear todas las manos de todos los jugadores
+                this.players.forEach(player => {
+                    player.hands.forEach(hand => {
+                        hand.cards = [];
+                        hand.splitHand = [];
+                        hand.hasSplit = false;
+                        hand.isComplete = false;
+                        hand.bet = this.currentBet;
+                    });
+                });
+                
+                // Mantener compatibilidad con variables antiguas
+                this.playerHand = [];
+                this.splitHand = [];
+                this.hasSplit = false;
+                
+                this.updateHandDisplays();
+                this.updateGameButtons();
+            }
+
+            getHandValue(hand) {
+                let value = 0;
+                let aces = 0;
+                
+                for (let card of hand) {
+                    if (card.rank === 'A') {
+                        aces++;
+                        value += 11;
+                    } else {
+                        value += card.value;
+                    }
+                }
+                
+                // Ajustar ases si es necesario
+                while (value > 21 && aces > 0) {
+                    value -= 10;
+                    aces--;
+                }
+                
+                return value;
+            }
+
+            createCardElement(card, hidden = false, delay = 0) {
+                const cardEl = document.createElement('div');
+                cardEl.className = `card ${hidden ? 'hidden' : card ? card.color : 'black'}`;
+                
+                if (hidden) {
+                    cardEl.textContent = '?';
+                } else if (card) {
+                    cardEl.innerHTML = `${card.rank}<br>${card.suit}`;
+                }
+                
+                // Añadir retraso a la animación si se especifica
+                if (delay > 0) {
+                    cardEl.style.animationDelay = `${delay}s`;
+                }
+                
+                return cardEl;
+            }
+
+            updateHandDisplays() {
+                // Actualizar cartas del dealer
+                this.elements.dealerCards.innerHTML = '';
+                for (let card of this.dealerHand) {
+                    this.elements.dealerCards.appendChild(this.createCardElement(card));
+                }
+                
+                // Mostrar carta oculta si existe
+                if (this.dealerHiddenCard && this.gameInProgress) {
+                    this.elements.dealerCards.appendChild(this.createCardElement(null, true));
+                }
+                
+                // Actualizar valor del dealer
+                if (this.dealerHiddenCard && this.gameInProgress) {
+                    this.elements.dealerValue.textContent = `Valor: ${this.getHandValue(this.dealerHand)} + ?`;
+                } else {
+                    this.elements.dealerValue.textContent = `Valor: ${this.getHandValue(this.dealerHand)}`;
+                }
+                
+                // Actualizar cartas de todos los jugadores y sus manos
+                this.players.forEach((player, playerIndex) => {
+                    if (player) {
+                        player.hands.forEach((hand, handIndex) => {
+                        const handCardsElement = document.querySelector(`[data-player="${playerIndex}"][data-hand="${handIndex}"].hand-cards`);
+                        const handValueElement = document.querySelector(`[data-player="${playerIndex}"][data-hand="${handIndex}"]`);
+                        
+                        if (handCardsElement) {
+                            // Limpiar cartas existentes
+                            handCardsElement.innerHTML = '';
+                            
+                            // Agregar cartas principales
+                            for (let card of hand.cards) {
+                                handCardsElement.appendChild(this.createCardElement(card));
+                            }
+                            
+                            // Si hay split, mostrar ambas manos
+                            if (hand.hasSplit && hand.splitHand.length > 0) {
+                                const splitDiv = document.createElement('div');
+                                splitDiv.className = 'split-section';
+                                splitDiv.innerHTML = '<div class="split-label">Split:</div>';
+                                
+                                for (let card of hand.splitHand) {
+                                    splitDiv.appendChild(this.createCardElement(card));
+                                }
+                                
+                                handCardsElement.appendChild(splitDiv);
+                            }
+                        }
+                        
+                        // Actualizar valor de la mano
+                        const handValueEl = document.querySelector(`[data-player="${playerIndex}"][data-hand="${handIndex}"].hand-value`);
+                        if (handValueEl) {
+                            if (hand.hasSplit && hand.splitHand.length > 0) {
+                                const mainValue = this.getHandValue(hand.cards);
+                                const splitValue = this.getHandValue(hand.splitHand);
+                                handValueEl.textContent = `Principal: ${mainValue} | Split: ${splitValue}`;
+                            } else {
+                                const handValue = this.getHandValue(hand.cards);
+                                handValueEl.textContent = `Valor: ${handValue}`;
+                            }
+                        }
+                        });
+                    }
+                });
+                
+                // Mantener compatibilidad con el sistema anterior para el jugador actual
+                if (this.players.length > 0) {
+                    const currentPlayer = this.players[this.currentPlayerIndex];
+                    const currentHand = currentPlayer.hands[this.currentHandIndex];
+                    
+                    // Actualizar las variables antiguas para compatibilidad
+                    this.playerHand = currentHand.cards;
+                    this.splitHand = currentHand.splitHand;
+                    this.hasSplit = currentHand.hasSplit;
+                    
+                    // Actualizar elementos antiguos si existen (compatibilidad hacia atrás)
+                    if (this.elements.playerCards && this.elements.playerCards.parentNode) {
+                        this.elements.playerCards.innerHTML = '';
+                        
+                        if (this.hasSplit) {
+                            // Crear contenedores para ambas manos
+                            const mainHandDiv = document.createElement('div');
+                            mainHandDiv.style.cssText = 'display: inline-block; margin: 0 20px; padding: 10px; border: 2px solid ' + (this.currentHand === 'main' ? '#ffd700' : '#666') + '; border-radius: 10px;';
+                            const mainHandLabel = document.createElement('div');
+                            mainHandLabel.textContent = 'Mano Principal';
+                            mainHandLabel.style.cssText = 'text-align: center; font-weight: bold; margin-bottom: 5px; color: ' + (this.currentHand === 'main' ? '#ffd700' : '#666') + ';';
+                            mainHandDiv.appendChild(mainHandLabel);
+                            
+                            const splitHandDiv = document.createElement('div');
+                            splitHandDiv.style.cssText = 'display: inline-block; margin: 0 20px; padding: 10px; border: 2px solid ' + (this.currentHand === 'split' ? '#ffd700' : '#666') + '; border-radius: 10px;';
+                            const splitHandLabel = document.createElement('div');
+                            splitHandLabel.textContent = 'Mano Dividida';
+                            splitHandLabel.style.cssText = 'text-align: center; font-weight: bold; margin-bottom: 5px; color: ' + (this.currentHand === 'split' ? '#ffd700' : '#666') + ';';
+                            splitHandDiv.appendChild(splitHandLabel);
+                            
+                            // Agregar cartas a la mano principal
+                            for (let card of this.playerHand) {
+                                mainHandDiv.appendChild(this.createCardElement(card));
+                            }
+                            
+                            // Agregar cartas a la mano dividida
+                            for (let card of this.splitHand) {
+                                splitHandDiv.appendChild(this.createCardElement(card));
+                            }
+                            
+                            this.elements.playerCards.appendChild(mainHandDiv);
+                            this.elements.playerCards.appendChild(splitHandDiv);
+                        } else {
+                            // Mostrar mano normal
+                            for (let card of this.playerHand) {
+                                this.elements.playerCards.appendChild(this.createCardElement(card));
+                            }
+                        }
+                    }
+                    
+                    // Actualizar valor del jugador
+                    if (this.elements.playerValue && this.elements.playerValue.parentNode) {
+                        if (this.hasSplit) {
+                            this.elements.playerValue.textContent = `Principal: ${this.getHandValue(this.playerHand)} | Dividida: ${this.getHandValue(this.splitHand)}`;
+                        } else {
+                            this.elements.playerValue.textContent = `Valor: ${this.getHandValue(this.playerHand)}`;
+                        }
+                    }
+                }
+            }
+
+            updateGameButtons() {
+                let canPlay, canDouble, currentHandArray;
+                
+                if (this.hasSplit) {
+                    currentHandArray = this.currentHand === 'main' ? this.playerHand : this.splitHand;
+                    canPlay = this.gameInProgress && this.getHandValue(currentHandArray) < 21;
+                    canDouble = canPlay && currentHandArray.length === 2;
+                } else {
+                    currentHandArray = this.playerHand;
+                    canPlay = this.gameInProgress && this.getHandValue(this.playerHand) < 21;
+                    canDouble = canPlay && this.playerHand.length === 2;
+                }
+                
+                const canSplit = !this.hasSplit && canPlay && this.playerHand.length === 2 && 
+                               this.getCardValue(this.playerHand[0]) === this.getCardValue(this.playerHand[1]);
+                
+                this.elements.dealBtn.disabled = this.gameInProgress;
+                this.elements.hitBtn.disabled = !canPlay;
+                this.elements.standBtn.disabled = !canPlay;
+                this.elements.doubleBtn.disabled = !canDouble;
+                this.elements.splitBtn.disabled = !canSplit;
+            }
+
+            needNewShoe() {
+                const penetrationPercent = parseInt(this.elements.penetration.value);
+                const totalCards = parseInt(this.elements.deckCount.value) * 52;
+                const maxCardsToPlay = (totalCards * penetrationPercent) / 100;
+                return this.cardsPlayed >= maxCardsToPlay;
+            }
+
+            updateDisplay() {
+                // Actualizar cuenta
+                this.elements.runningCount.textContent = this.runningCount;
+                
+                // Calcular cuenta verdadera
+                const totalCards = parseInt(this.elements.deckCount.value) * 52;
+                const remainingCards = this.shoe.length; // Usar cartas realmente restantes en el taco
+                const remainingDecks = remainingCards / 52;
+                const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : 0;
+                
+                this.elements.trueCount.textContent = trueCount.toFixed(1);
+                this.elements.cardsPlayed.textContent = this.cardsPlayed;
+                this.elements.remainingCards.textContent = remainingCards;
+                this.elements.remainingDecks.textContent = remainingDecks.toFixed(1);
+                
+                // Calcular ventaja aproximada (simplificada)
+                const advantage = (trueCount - 1) * 0.5;
+                this.elements.advantage.textContent = `${advantage.toFixed(1)}%`;
+                
+                // Actualizar barra de progreso
+                const penetrationPercent = parseInt(this.elements.penetration.value);
+                const maxCardsToPlay = (totalCards * penetrationPercent) / 100;
+                const progressPercent = (this.cardsPlayed / maxCardsToPlay) * 100;
+                this.elements.progressFill.style.width = `${Math.min(progressPercent, 100)}%`;
+            }
+
+            updateShoeDisplay() {
+                const totalCards = parseInt(this.elements.deckCount.value) * 52;
+                const remainingCards = this.shoe.length;
+                const remainingDecks = remainingCards / 52;
+                
+                this.elements.remainingCards.textContent = remainingCards;
+                this.elements.remainingDecks.textContent = remainingDecks.toFixed(1);
+                
+                // Actualizar barra de progreso
+                const penetrationPercent = parseInt(this.elements.penetration.value);
+                const maxCardsToPlay = (totalCards * penetrationPercent) / 100;
+                const progressPercent = (this.cardsPlayed / maxCardsToPlay) * 100;
+                this.elements.progressFill.style.width = `${Math.min(progressPercent, 100)}%`;
+            }
+
+            // Métodos del sistema de apuestas
+            updateBankrollDisplay() {
+                this.elements.bankroll.textContent = `$${this.bankroll}`;
+                this.elements.currentBet.textContent = `$${this.currentBet}`;
+                this.elements.handsPlayed.textContent = this.handsPlayed;
+                this.elements.betAmount.textContent = this.currentBet;
+                
+                // Actualizar también los nuevos elementos de la fila de información
+                const bankrollDisplay = document.getElementById('bankrollDisplay');
+                const currentBetDisplay = document.getElementById('currentBetDisplay');
+                const handsPlayedDisplay = document.getElementById('handsPlayedDisplay');
+                const suggestedBetDisplay = document.getElementById('suggestedBetDisplay');
+                
+                if (bankrollDisplay) bankrollDisplay.textContent = `$${this.bankroll}`;
+                if (currentBetDisplay) currentBetDisplay.textContent = `$${this.currentBet}`;
+                if (handsPlayedDisplay) handsPlayedDisplay.textContent = this.handsPlayed;
+                
+                // Calcular apuesta sugerida basada en la cuenta verdadera
+                const suggestedBet = this.calculateSuggestedBet();
+                this.elements.suggestedBet.textContent = `$${suggestedBet}`;
+                if (suggestedBetDisplay) suggestedBetDisplay.textContent = `$${suggestedBet}`;
+                
+                // Actualizar fichas visuales
+                this.updateChipStack();
+            }
+            
+            removeBet(amount) {
+                if (this.currentBet >= amount) {
+                    this.currentBet -= amount;
+                    this.updateBankrollDisplay();
+                }
+            }
+            
+            getBasicStrategyAdvice(playerValue, dealerUpCard, canDouble = true, canSplit = false, isPair = false) {
+                const dealerValue = dealerUpCard.value === 1 ? 11 : dealerUpCard.value;
+                
+                // Estrategia para pares
+                if (isPair) {
+                    const pairValue = playerValue / 2;
+                    if (pairValue === 1) return "Dividir";
+                    if (pairValue === 8) return "Dividir";
+                    if (pairValue === 9 && dealerValue !== 7 && dealerValue !== 10 && dealerValue !== 11) return "Dividir";
+                    if (pairValue === 7 && dealerValue <= 7) return "Dividir";
+                    if (pairValue === 6 && dealerValue <= 6) return "Dividir";
+                    if (pairValue === 4 && (dealerValue === 5 || dealerValue === 6)) return "Dividir";
+                    if (pairValue === 3 && dealerValue <= 7) return "Dividir";
+                    if (pairValue === 2 && dealerValue <= 7) return "Dividir";
+                }
+                
+                // Manos suaves (con As)
+                const hasAce = this.playerHand.some(card => card.rank === 'A' && playerValue <= 21);
+                if (hasAce && playerValue <= 21) {
+                    if (playerValue >= 19) return "Plantarse";
+                    if (playerValue === 18) {
+                        if (dealerValue <= 6) return canDouble ? "Doblar" : "Plantarse";
+                        if (dealerValue <= 8) return "Plantarse";
+                        return "Pedir";
+                    }
+                    if (playerValue === 17) {
+                        if (dealerValue <= 6) return canDouble ? "Doblar" : "Pedir";
+                        return "Pedir";
+                    }
+                    if (playerValue >= 15) {
+                        if (dealerValue === 4 || dealerValue === 5 || dealerValue === 6) return canDouble ? "Doblar" : "Pedir";
+                        return "Pedir";
+                    }
+                    if (playerValue >= 13) {
+                        if (dealerValue === 5 || dealerValue === 6) return canDouble ? "Doblar" : "Pedir";
+                        return "Pedir";
+                    }
+                    return "Pedir";
+                }
+                
+                // Manos duras
+                if (playerValue >= 17) return "Plantarse";
+                if (playerValue >= 13 && dealerValue <= 6) return "Plantarse";
+                if (playerValue === 12 && dealerValue >= 4 && dealerValue <= 6) return "Plantarse";
+                if (playerValue === 11) return canDouble ? "Doblar" : "Pedir";
+                if (playerValue === 10 && dealerValue <= 9) return canDouble ? "Doblar" : "Pedir";
+                if (playerValue === 9 && dealerValue >= 3 && dealerValue <= 6) return canDouble ? "Doblar" : "Pedir";
+                
+                return "Pedir";
+            }
+            
+            getCountingAdvice() {
+                const remainingDecks = this.shoe.length / 52;
+                const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : 0;
+                
+                if (trueCount >= 2) {
+                    return `Cuenta verdadera: +${trueCount.toFixed(1)} - Aumentar apuestas`;
+                } else if (trueCount <= -2) {
+                    return `Cuenta verdadera: ${trueCount.toFixed(1)} - Apostar mínimo`;
+                } else {
+                    return `Cuenta verdadera: ${trueCount.toFixed(1)} - Apuesta normal`;
+                }
+            }
+            
+            showStrategyAdvice() {
+                if (!this.gameInProgress || this.playerHand.length < 2) return;
+                
+                const playerValue = this.getHandValue(this.playerHand);
+                const dealerUpCard = this.dealerHand[0];
+                const canDouble = this.playerHand.length === 2;
+                const isPair = this.playerHand.length === 2 && this.playerHand[0].rank === this.playerHand[1].rank;
+                
+                const basicStrategy = this.getBasicStrategyAdvice(playerValue, dealerUpCard, canDouble, true, isPair);
+                const countingAdvice = this.getCountingAdvice();
+                
+                const adviceText = `${basicStrategy} | ${countingAdvice}`;
+                
+                const strategyDiv = document.getElementById('strategyAdvice');
+                const adviceTextSpan = document.getElementById('adviceText');
+                
+                if (strategyDiv && adviceTextSpan) {
+                    adviceTextSpan.textContent = adviceText;
+                    strategyDiv.style.display = 'block';
+                    
+                    // Ocultar después de 5 segundos
+                    setTimeout(() => {
+                        strategyDiv.style.display = 'none';
+                    }, 5000);
+                }
+            }
+            
+            checkForBlackjack() {
+                this.revealDealerCard();
+                
+                const playerValue = this.getHandValue(this.playerHand);
+                const dealerValue = this.getHandValue(this.dealerHand);
+                
+                if (playerValue === 21 && dealerValue === 21) {
+                    this.endGame('¡Empate! Ambos tienen Blackjack', 'status-push', 0);
+                } else if (playerValue === 21) {
+                    this.endGame('¡BLACKJACK! Tú ganas', 'status-win', this.currentBet * 1.5);
+                } else if (dealerValue === 21) {
+                    this.endGame('Dealer tiene Blackjack', 'status-lose', -this.currentBet);
+                }
+            }
+            
+            endGame(message, statusClass, winnings) {
+                this.gameInProgress = false;
+                
+                // Actualizar bankroll
+                this.bankroll += winnings;
+                this.totalWinnings += winnings;
+                this.handsPlayed++;
+                
+                // Actualizar gráfica con las ganancias de esta mano
+                this.updateChart(winnings);
+                
+                // Resetear apuesta
+                this.currentBet = 0;
+                
+                this.elements.gameStatus.textContent = message;
+                this.elements.gameStatus.className = `game-status ${statusClass}`;
+                
+                this.updateBankrollDisplay();
+                this.updateGameButtons();
+            }
+
+            calculateSuggestedBet() {
+                const remainingDecks = this.shoe.length / 52;
+                const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : 0;
+                
+                let betPercentage = 0;
+                
+                if (trueCount <= -3) {
+                    betPercentage = 0;
+                } else if (trueCount <= -2) {
+                    betPercentage = 0;
+                } else if (trueCount <= -1) {
+                    betPercentage = 0.5;
+                } else if (trueCount <= 0) {
+                    betPercentage = 1;
+                } else if (trueCount <= 1) {
+                    betPercentage = 1.5;
+                } else if (trueCount <= 2) {
+                    betPercentage = 2;
+                } else if (trueCount <= 3) {
+                    betPercentage = 3;
+                } else if (trueCount <= 4) {
+                    betPercentage = 4;
+                } else if (trueCount <= 5) {
+                    betPercentage = 5;
+                } else {
+                    betPercentage = 6;
+                }
+                
+                const suggestedBet = Math.round((this.bankroll * betPercentage) / 100);
+                return Math.max(suggestedBet, 0);
+            }
+            
+            updateChipStack() {
+                // Limpiar fichas de todos los spots
+                for (let i = 1; i <= 3; i++) {
+                    const spot = document.getElementById(`spot${i}`);
+                    if (spot) {
+                        const existingChips = spot.querySelectorAll('.chip');
+                        existingChips.forEach(chip => chip.remove());
+                    }
+                }
+                
+                if (this.currentBet <= 0 || !this.currentSpot) return;
+                
+                const activeSpot = document.getElementById(`spot${this.currentSpot}`);
+                if (!activeSpot) return;
+                
+                // Crear array de fichas ordenado de mayor a menor valor
+                const chipValues = [500, 100, 25, 5, 1];
+                const chipClasses = ['chip-500-visual', 'chip-100-visual', 'chip-25-visual', 'chip-5-visual', 'chip-1-visual'];
+                let remainingBet = this.currentBet;
+                let chipStack = [];
+                
+                // Calcular fichas necesarias
+                chipValues.forEach((value, index) => {
+                    const count = Math.floor(remainingBet / value);
+                    remainingBet = remainingBet % value;
+                    
+                    for (let i = 0; i < count; i++) {
+                        chipStack.push({ value, class: chipClasses[index] });
+                    }
+                });
+                
+                // Crear fichas en orden correcto (mayor valor abajo)
+                chipStack.forEach((chipData, index) => {
+                    const chip = document.createElement('div');
+                    chip.className = `chip ${chipData.class}`;
+                    chip.textContent = `$${chipData.value}`;
+                    chip.style.position = 'absolute';
+                    chip.style.bottom = `${10 + (index * 3)}px`;
+                    chip.style.left = '50%';
+                    chip.style.transform = 'translateX(-50%)';
+                    chip.style.zIndex = `${10 + index}`;
+                    chip.dataset.value = chipData.value;
+                    
+                    // Añadir evento de clic derecho para retirar ficha
+                    chip.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        this.removeBet(chipData.value);
+                    });
+                    
+                    activeSpot.appendChild(chip);
+                });
+            }
+            
+            initializeChart() {
+                if (!this.elements.progressChart) return;
+                
+                this.chartCtx = this.elements.progressChart.getContext('2d');
+                this.resetChart();
+            }
+            
+            resetChart() {
+                this.evData = [];
+                this.actualData = [];
+                this.cumulativeEV = 0;
+                this.cumulativeActual = 0;
+                this.drawChart();
+            }
+            
+            calculateExpectedValue(bet, trueCount) {
+                // Cálculo simplificado del EV basado en la cuenta verdadera
+                let advantage = 0;
+                
+                if (trueCount <= -3) {
+                    advantage = -0.025;
+                } else if (trueCount <= -2) {
+                    advantage = -0.015;
+                } else if (trueCount <= -1) {
+                    advantage = -0.005;
+                } else if (trueCount <= 0) {
+                    advantage = -0.005;
+                } else if (trueCount <= 1) {
+                    advantage = 0.005;
+                } else if (trueCount <= 2) {
+                    advantage = 0.01;
+                } else if (trueCount <= 3) {
+                    advantage = 0.015;
+                } else if (trueCount <= 4) {
+                    advantage = 0.02;
+                } else if (trueCount <= 5) {
+                    advantage = 0.025;
+                } else {
+                    advantage = 0.03;
+                }
+                
+                return bet * advantage;
+            }
+            
+            updateChart(actualWinnings) {
+                const remainingDecks = this.shoe.length / 52;
+                const trueCount = remainingDecks > 0 ? this.runningCount / remainingDecks : 0;
+                
+                const expectedValue = this.calculateExpectedValue(this.currentBet, trueCount);
+                
+                this.cumulativeEV += expectedValue;
+                this.cumulativeActual += actualWinnings;
+                
+                this.evData.push(this.cumulativeEV);
+                this.actualData.push(this.cumulativeActual);
+                
+                this.drawChart();
+            }
+            
+            drawChart() {
+                if (!this.chartCtx) return;
+                
+                const canvas = this.elements.progressChart;
+                const ctx = this.chartCtx;
+                
+                // Limpiar canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (this.evData.length === 0) return;
+                
+                const padding = 40;
+                const chartWidth = canvas.width - 2 * padding;
+                const chartHeight = canvas.height - 2 * padding;
+                
+                // Encontrar valores mínimos y máximos
+                const allData = [...this.evData, ...this.actualData];
+                const minY = Math.min(...allData, 0);
+                const maxY = Math.max(...allData, 0);
+                const rangeY = maxY - minY || 1;
+                
+                const maxX = Math.max(this.evData.length - 1, 1);
+                
+                // Dibujar ejes
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                // Eje Y
+                ctx.moveTo(padding, padding);
+                ctx.lineTo(padding, canvas.height - padding);
+                // Eje X
+                ctx.moveTo(padding, canvas.height - padding);
+                ctx.lineTo(canvas.width - padding, canvas.height - padding);
+                ctx.stroke();
+                
+                // Línea de cero
+                if (minY < 0 && maxY > 0) {
+                    const zeroY = padding + (maxY / rangeY) * chartHeight;
+                    ctx.strokeStyle = '#999';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(padding, zeroY);
+                    ctx.lineTo(canvas.width - padding, zeroY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+                
+                // Función para convertir coordenadas
+                const getX = (index) => padding + (index / maxX) * chartWidth;
+                const getY = (value) => padding + ((maxY - value) / rangeY) * chartHeight;
+                
+                // Dibujar línea EV (roja)
+                if (this.evData.length > 1) {
+                    ctx.strokeStyle = '#ff0000';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(getX(0), getY(this.evData[0]));
+                    for (let i = 1; i < this.evData.length; i++) {
+                        ctx.lineTo(getX(i), getY(this.evData[i]));
+                    }
+                    ctx.stroke();
+                }
+                
+                // Dibujar línea actual (amarilla)
+                if (this.actualData.length > 1) {
+                    ctx.strokeStyle = '#ffd700';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(getX(0), getY(this.actualData[0]));
+                    for (let i = 1; i < this.actualData.length; i++) {
+                        ctx.lineTo(getX(i), getY(this.actualData[i]));
+                    }
+                    ctx.stroke();
+                }
+                
+                // Etiquetas de los ejes
+                ctx.fillStyle = '#333';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                
+                // Etiquetas del eje X
+                for (let i = 0; i <= Math.min(maxX, 10); i += Math.max(1, Math.floor(maxX / 10))) {
+                    const x = getX(i);
+                    ctx.fillText(i.toString(), x, canvas.height - padding + 20);
+                }
+                
+                // Etiquetas del eje Y
+                ctx.textAlign = 'right';
+                for (let i = 0; i <= 5; i++) {
+                    const value = minY + (rangeY * i / 5);
+                    const y = getY(value);
+                    ctx.fillText(`$${Math.round(value)}`, padding - 10, y + 4);
+                }
+            }
+        }
+
+        // Funciones globales para el sistema de apuestas
+        let game;
+
+        function addBet(amount) {
+            if (game && game.currentBet + amount <= game.bankroll) {
+                game.currentBet += amount;
+                game.updateBankrollDisplay();
+            } else {
+                alert('No tienes suficiente dinero para esta apuesta.');
+            }
+        }
+
+        function clearBet() {
+            if (game) {
+                game.currentBet = 0;
+                game.updateBankrollDisplay();
+            }
+        }
+        
+        function removeBet(amount) {
+            if (game && game.currentBet >= amount) {
+                game.currentBet -= amount;
+                game.updateBankrollDisplay();
+            }
+        }
+
+        function maxBet() {
+             if (game) {
+                 game.currentBet = game.bankroll;
+                 game.updateBankrollDisplay();
+             }
+         }
+         
+         function setBankroll() {
+            if (game) {
+                const newBankroll = prompt('Ingresa el nuevo bankroll:', game.bankroll);
+                if (newBankroll && !isNaN(newBankroll) && newBankroll > 0) {
+                    game.bankroll = parseInt(newBankroll);
+                    game.currentBet = 0;
+                    game.handsPlayed = 0;
+                    game.totalWinnings = 0;
+                    game.resetChart(); // Resetear la gráfica con el nuevo bankroll
+                    game.updateBankrollDisplay();
+                }
+            }
+        }
+        
+        // Funciones globales para el sistema de buy-in
+        function buyInToSpot(spotNumber) {
+            if (game && game.spots[spotNumber].occupied) {
+                alert('Este spot ya está ocupado');
+                return;
+            }
+            
+            const playerName = prompt('Ingresa tu nombre:', 'Jugador ' + spotNumber);
+            if (!playerName) return;
+            
+            if (game) {
+                game.spots[spotNumber] = {
+                    occupied: true,
+                    playerId: game.playerId,
+                    playerName: playerName,
+                    active: true
+                };
+                
+                game.currentSpot = spotNumber;
+                updateSpotDisplay(spotNumber);
+                
+                // Crear jugador en el sistema de jugadores
+                const player = {
+                    id: game.playerId + '_' + spotNumber,
+                    name: playerName,
+                    bankroll: game.bankroll,
+                    hands: [{
+                        cards: [],
+                        bet: 0,
+                        splitHand: [],
+                        hasSplit: false,
+                        isActive: true
+                    }]
+                };
+                
+                // Agregar jugador en la posición correcta del spot
+                if (game.players.length < spotNumber) {
+                    // Llenar espacios vacíos si es necesario
+                    while (game.players.length < spotNumber - 1) {
+                        game.players.push(null);
+                    }
+                    game.players.push(player);
+                } else {
+                    game.players[spotNumber - 1] = player;
+                }
+                
+                game.currentPlayerIndex = spotNumber - 1;
+                game.updatePlayersDisplay();
+                
+                // Habilitar controles del juego
+                document.getElementById('dealBtn').disabled = false;
+            }
+        }
+        
+        function updateSpotDisplay(spotNumber) {
+            if (!game) return;
+            
+            const spot = document.getElementById(`spot${spotNumber}`);
+            const spotData = game.spots[spotNumber];
+            
+            if (spotData.occupied) {
+                spot.classList.add('occupied');
+                if (spotData.active) {
+                    spot.classList.add('active-player');
+                }
+                
+                spot.innerHTML = `
+                    <div class="player-indicator">${spotData.playerName}</div>
+                    <div class="chip-stack" id="chipStack${spotNumber}"></div>
+                `;
+            } else {
+                spot.classList.remove('occupied', 'active-player');
+                spot.innerHTML = `<button class="buy-in-btn" onclick="buyInToSpot(${spotNumber})">Buy In</button>`;
+            }
+        }
+        
+        function leaveSpot(spotNumber) {
+            if (!game) return;
+            
+            game.spots[spotNumber] = {
+                occupied: false,
+                playerId: null,
+                playerName: '',
+                active: false
+            };
+            
+            if (game.currentSpot === spotNumber) {
+                game.currentSpot = null;
+            }
+            
+            updateSpotDisplay(spotNumber);
+        }
+
+        // Inicializar la aplicación cuando se carga la página
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM cargado, inicializando BlackjackTrainer...');
+            try {
+                game = new BlackjackTrainer();
+                console.log('BlackjackTrainer inicializado correctamente:', game);
+            } catch (error) {
+                console.error('Error al inicializar BlackjackTrainer:', error);
+                alert('Error al inicializar el juego: ' + error.message);
+            }
+        });
+    </script>

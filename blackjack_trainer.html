@@ -1028,20 +1028,20 @@
 
                 <div class="betting-controls">
                     <div class="chip-buttons">
-                        <button class="chip-btn chip-1" onclick="addBet(1)">$1</button>
-                        <button class="chip-btn chip-5" onclick="addBet(5)">$5</button>
-                        <button class="chip-btn chip-25" onclick="addBet(25)">$25</button>
-                        <button class="chip-btn chip-100" onclick="addBet(100)">$100</button>
-                        <button class="chip-btn chip-500" onclick="addBet(500)">$500</button>
+                        <button class="chip-btn chip-1" id="chip-1">$1</button>
+                        <button class="chip-btn chip-5" id="chip-5">$5</button>
+                        <button class="chip-btn chip-25" id="chip-25">$25</button>
+                        <button class="chip-btn chip-100" id="chip-100">$100</button>
+                        <button class="chip-btn chip-500" id="chip-500">$500</button>
                     </div>
                     <div class="bet-display">
                         <span>Apuesta: $</span>
                         <span id="betAmount">0</span>
                     </div>
                     <div class="bet-actions">
-                        <button onclick="clearBet()">Limpiar</button>
-                        <button onclick="maxBet()">Máximo</button>
-                        <button onclick="setBankroll()">Config</button>
+                        <button id="clear-bet">Limpiar</button>
+                        <button id="max-bet">Máximo</button>
+                        <button id="set-bankroll">Config</button>
                     </div>
                 </div>
 
@@ -1372,6 +1372,16 @@
                 document.getElementById('joinGame').addEventListener('click', () => {
                     this.joinMultiplayerGame();
                 });
+                
+                // Event listeners para botones de apuestas
+                document.getElementById('chip-1').addEventListener('click', () => this.addBet(1));
+                document.getElementById('chip-5').addEventListener('click', () => this.addBet(5));
+                document.getElementById('chip-25').addEventListener('click', () => this.addBet(25));
+                document.getElementById('chip-100').addEventListener('click', () => this.addBet(100));
+                document.getElementById('chip-500').addEventListener('click', () => this.addBet(500));
+                document.getElementById('clear-bet').addEventListener('click', () => this.clearBet());
+                document.getElementById('max-bet').addEventListener('click', () => this.maxBet());
+                document.getElementById('set-bankroll').addEventListener('click', () => this.setBankroll());
             }
             
             generatePlayerId() {
@@ -2154,6 +2164,37 @@
             removeBet(amount) {
                 if (this.currentBet >= amount) {
                     this.currentBet -= amount;
+                    this.updateBankrollDisplay();
+                }
+            }
+            
+            addBet(amount) {
+                if (this.currentBet + amount <= this.bankroll) {
+                    this.currentBet += amount;
+                    this.updateBankrollDisplay();
+                } else {
+                    alert('No tienes suficiente dinero para esta apuesta.');
+                }
+            }
+            
+            clearBet() {
+                this.currentBet = 0;
+                this.updateBankrollDisplay();
+            }
+            
+            maxBet() {
+                this.currentBet = this.bankroll;
+                this.updateBankrollDisplay();
+            }
+            
+            setBankroll() {
+                const newBankroll = prompt('Ingresa el nuevo bankroll:', this.bankroll);
+                if (newBankroll && !isNaN(newBankroll) && newBankroll > 0) {
+                    this.bankroll = parseInt(newBankroll);
+                    this.currentBet = 0;
+                    this.handsPlayed = 0;
+                    this.totalWinnings = 0;
+                    this.resetChart();
                     this.updateBankrollDisplay();
                 }
             }

@@ -153,13 +153,27 @@
             height: 100%;
             position: relative;
             border-radius: 50%;
-            background: linear-gradient(145deg, #8B4513, #654321, #8B4513);
-            border: 8px solid var(--primary-gold);
+            background: 
+                radial-gradient(circle at 30% 30%, #A0522D, #8B4513, #654321),
+                linear-gradient(145deg, #8B4513, #654321, #8B4513);
+            border: 10px solid var(--primary-gold);
             box-shadow: 
-                0 0 30px rgba(212, 175, 55, 0.5),
-                inset 0 0 50px rgba(0, 0, 0, 0.3);
-            transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                0 0 40px rgba(212, 175, 55, 0.6),
+                inset 0 0 60px rgba(0, 0, 0, 0.4),
+                0 10px 30px rgba(0, 0, 0, 0.3);
             transform-style: preserve-3d;
+        }
+        
+        .wheel::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
         }
         
         .wheel-inner {
@@ -222,19 +236,26 @@
         
         .number {
             position: absolute;
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             color: white;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(2px);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(3px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            transform-origin: center;
+            transition: all 0.3s ease;
+        }
+        
+        .number:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
         }
         
         .wheel-center {
@@ -242,37 +263,66 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(145deg, var(--secondary-gold), var(--primary-gold));
+            width: 90px;
+            height: 90px;
+            background: 
+                radial-gradient(circle at 30% 30%, var(--secondary-gold), var(--primary-gold), #B8860B),
+                linear-gradient(145deg, var(--secondary-gold), var(--primary-gold));
             border-radius: 50%;
-            border: 3px solid #8B4513;
+            border: 4px solid #8B4513;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 12px;
+            font-size: 14px;
             color: #8B4513;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
             box-shadow: 
-                0 0 20px rgba(212, 175, 55, 0.6),
-                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+                0 0 25px rgba(212, 175, 55, 0.7),
+                inset 0 3px 6px rgba(255, 255, 255, 0.4),
+                0 5px 15px rgba(0, 0, 0, 0.3);
             z-index: 10;
+        }
+        
+        .wheel-center::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            pointer-events: none;
         }
         
         .ball {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 16px;
-            height: 16px;
-            background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0, #c0c0c0);
+            width: 18px;
+            height: 18px;
+            background: 
+                radial-gradient(circle at 25% 25%, #ffffff, #f0f0f0, #e0e0e0, #c0c0c0, #a0a0a0);
             border-radius: 50%;
             box-shadow: 
-                0 2px 8px rgba(0, 0, 0, 0.4),
-                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+                0 3px 10px rgba(0, 0, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9),
+                0 0 8px rgba(255, 255, 255, 0.3);
             z-index: 15;
             transform: translate(-50%, -50%);
-            transition: all 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .ball::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9), transparent);
+            border-radius: 50%;
+            pointer-events: none;
         }
         
         .spin-button {
@@ -762,6 +812,7 @@
     
     <script>
         // Configuración de la ruleta europea
+        // Secuencia correcta de números de ruleta europea (en sentido horario desde el 0)
         const rouletteNumbers = [
             {num: 0, color: 'green'},
             {num: 32, color: 'red'}, {num: 15, color: 'black'}, {num: 19, color: 'red'}, {num: 4, color: 'black'},
@@ -792,22 +843,38 @@
             updateDisplay();
         }
         
-        // Crear números en la rueda
+        // Crear números en la rueda con posicionamiento mejorado
         function createWheelNumbers() {
             const wheelNumbers = document.getElementById('wheel-numbers');
+            wheelNumbers.innerHTML = ''; // Limpiar números existentes
             
             rouletteNumbers.forEach((item, index) => {
                 const numberElement = document.createElement('div');
                 numberElement.className = 'number';
                 numberElement.textContent = item.num;
                 
+                // Calcular ángulo con mejor distribución
                 const angle = (index * 360) / rouletteNumbers.length;
-                const radius = 160; // Radio restaurado ahora que el contenedor está centrado
-                const x = Math.cos((angle - 90) * Math.PI / 180) * radius;
-                const y = Math.sin((angle - 90) * Math.PI / 180) * radius;
+                const radius = 140; // Radio ajustado para mantener números dentro de la rueda (450px/2 - 85px margen)
                 
+                // Convertir a radianes y calcular posición
+                const angleRad = (angle - 90) * Math.PI / 180;
+                const x = Math.cos(angleRad) * radius;
+                const y = Math.sin(angleRad) * radius;
+                
+                // Posicionamiento centrado mejorado
                 numberElement.style.left = `calc(50% + ${x}px - 12px)`;
                 numberElement.style.top = `calc(50% + ${y}px - 12px)`;
+                numberElement.style.transform = `rotate(${angle}deg)`;
+                
+                // Añadir color de fondo según el tipo de número
+                if (item.color === 'green') {
+                    numberElement.style.backgroundColor = 'rgba(0, 128, 0, 0.8)';
+                } else if (item.color === 'red') {
+                    numberElement.style.backgroundColor = 'rgba(220, 20, 60, 0.8)';
+                } else {
+                    numberElement.style.backgroundColor = 'rgba(26, 26, 26, 0.8)';
+                }
                 
                 wheelNumbers.appendChild(numberElement);
             });
@@ -884,7 +951,7 @@
             playSound('clear');
         }
         
-        // Girar la ruleta
+        // Girar la ruleta con animaciones mejoradas
         function spinWheel() {
             if (gameState.isSpinning || gameState.totalBet === 0) {
                 if (gameState.totalBet === 0) {
@@ -902,8 +969,8 @@
             const winningIndex = Math.floor(Math.random() * rouletteNumbers.length);
             const winningNumber = rouletteNumbers[winningIndex];
             
-            // Calcular rotación
-            const baseRotation = 1800; // 5 vueltas completas
+            // Calcular rotación con más realismo
+            const baseRotation = 2160 + Math.random() * 720; // 6-8 vueltas aleatorias
             const segmentAngle = 360 / rouletteNumbers.length;
             const targetAngle = winningIndex * segmentAngle;
             const finalRotation = baseRotation + (360 - targetAngle);
@@ -912,20 +979,29 @@
             const wheel = document.getElementById('wheel');
             const ball = document.getElementById('ball');
             
-            wheel.classList.add('spinning');
-            ball.classList.add('spinning');
+            // Resetear transformaciones previas
+            wheel.style.transition = 'none';
+            ball.style.transition = 'none';
+            wheel.style.transform = 'rotateZ(0deg)';
+            ball.style.transform = 'translate(-50%, -50%)';
             
-            // Posicionar la bola en el número ganador después de la animación
-            setTimeout(() => {
-                const radius = 180;
-                const ballX = Math.cos((targetAngle * Math.PI) / 180) * radius;
-                const ballY = Math.sin((targetAngle * Math.PI) / 180) * radius;
-                ball.style.transform = `translate(calc(-50% + ${ballX}px), calc(-50% + ${ballY}px))`;
+            // Aplicar animación después de un frame
+            requestAnimationFrame(() => {
+                wheel.style.transition = 'transform 4.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                ball.style.transition = 'transform 4.5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                
                 wheel.style.transform = `rotateZ(${finalRotation}deg)`;
                 
-                wheel.classList.remove('spinning');
-                ball.classList.remove('spinning');
-            }, 3800);
+                // Animar la bola en dirección opuesta con efecto más realista
+                const ballRadius = 185;
+                const ballFinalAngle = -finalRotation + targetAngle;
+                const ballX = Math.cos((ballFinalAngle - 90) * Math.PI / 180) * ballRadius;
+                const ballY = Math.sin((ballFinalAngle - 90) * Math.PI / 180) * ballRadius;
+                
+                setTimeout(() => {
+                    ball.style.transform = `translate(calc(-50% + ${ballX}px), calc(-50% + ${ballY}px))`;
+                }, 100);
+            });
             
             // Mostrar resultado
             setTimeout(() => {
@@ -933,7 +1009,7 @@
                 calculateWinnings(winningNumber);
                 gameState.isSpinning = false;
                 document.getElementById('spin-btn').disabled = false;
-            }, 4200);
+            }, 5000);
         }
         
         // Mostrar resultado

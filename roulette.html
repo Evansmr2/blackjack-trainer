@@ -227,7 +227,7 @@
         
         .wheel-numbers {
             position: absolute;
-            top: 10px;
+            top: 0;
             left: 0;
             width: 100%;
             height: 100%;
@@ -855,7 +855,7 @@
                 
                 // Calcular ángulo con mejor distribución
                 const angle = (index * 360) / rouletteNumbers.length;
-                const radius = 140; // Radio ajustado para mantener números dentro de la rueda (450px/2 - 85px margen)
+                const radius = 200; // Radio aumentado para posicionar números en el borde exterior de la rueda
                 
                 // Convertir a radianes y calcular posición
                 const angleRad = (angle - 90) * Math.PI / 180;

@@ -179,10 +179,10 @@
         /* Círculo rotatorio de números */
         .wheel-rotating {
             position: absolute;
-            top: 35px;
-            left: 35px;
-            right: 35px;
-            bottom: 35px;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
             border-radius: 50%;
             background: conic-gradient(
                 #008000 0deg 9.73deg,
@@ -860,7 +860,7 @@
                 
                 // Calcular ángulo con mejor distribución
                 const angle = (index * 360) / rouletteNumbers.length;
-                const radius = 210; // Radio aumentado para la ruleta más grande
+                const radius = 240; // Radio ajustado para posicionar números al final de los triángulos
                 
                 // Convertir a radianes y calcular posición
                 const angleRad = (angle - 90) * Math.PI / 180;
@@ -975,7 +975,7 @@
             const winningNumber = rouletteNumbers[winningIndex];
             
             // Calcular rotación más lenta y realista
-            const baseRotation = 1080 + Math.random() * 720; // 3-5 vueltas aleatorias
+            const baseRotation = 720 + Math.random() * 360; // 2-3 vueltas aleatorias
             const segmentAngle = 360 / rouletteNumbers.length;
             const targetAngle = winningIndex * segmentAngle;
             const finalRotation = baseRotation + (360 - targetAngle);
@@ -992,10 +992,10 @@
             
             // Aplicar animación después de un frame
             requestAnimationFrame(() => {
-                wheelRotating.style.transition = 'transform 8s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                wheelRotating.style.transition = 'transform 6s cubic-bezier(0.25, 0.1, 0.25, 1)';
                 wheelRotating.style.transform = `rotateZ(${finalRotation}deg)`;
                 
-                // Animación realista de la bola en 3 fases
+                // Animación simplificada de la bola
                 animateRealisticBall(ball, finalRotation, targetAngle);
             });
             
@@ -1009,28 +1009,21 @@
         }
         
         function animateRealisticBall(ball, wheelRotation, targetAngle) {
-            // Fase 1: Bola gira rápido por el borde exterior (2 segundos)
-            const outerRadius = 240;
-            ball.style.transition = 'transform 2s linear';
-            ball.style.transform = `translate(-50%, -50%) rotate(${-wheelRotation * 2}deg) translateX(${outerRadius}px) rotate(${wheelRotation * 2}deg)`;
+            // Fase 1: Bola gira por el borde amarillo (4 segundos)
+            const borderRadius = 260; // Radio del borde amarillo
+            ball.style.transition = 'transform 4s linear';
+            ball.style.transform = `translate(-50%, -50%) rotate(${-wheelRotation * 1.5}deg) translateX(${borderRadius}px) rotate(${wheelRotation * 1.5}deg)`;
             
             setTimeout(() => {
-                // Fase 2: Bola decae hacia el interior rebotando (3 segundos)
-                const middleRadius = 200;
-                ball.style.transition = 'transform 3s cubic-bezier(0.4, 0.0, 0.8, 1)';
-                ball.style.transform = `translate(-50%, -50%) rotate(${-wheelRotation * 1.5}deg) translateX(${middleRadius}px) rotate(${wheelRotation * 1.5}deg)`;
+                // Fase 2: Bola rebota y cae en un número (4 segundos)
+                const finalRadius = 240;
+                const ballFinalAngle = -wheelRotation * 0.2 + targetAngle;
+                const ballX = Math.cos((ballFinalAngle - 90) * Math.PI / 180) * finalRadius;
+                const ballY = Math.sin((ballFinalAngle - 90) * Math.PI / 180) * finalRadius;
                 
-                setTimeout(() => {
-                    // Fase 3: Bola se asienta en un número (3.5 segundos)
-                    const finalRadius = 185;
-                    const ballFinalAngle = -wheelRotation * 0.3 + targetAngle;
-                    const ballX = Math.cos((ballFinalAngle - 90) * Math.PI / 180) * finalRadius;
-                    const ballY = Math.sin((ballFinalAngle - 90) * Math.PI / 180) * finalRadius;
-                    
-                    ball.style.transition = 'transform 3.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                    ball.style.transform = `translate(calc(-50% + ${ballX}px), calc(-50% + ${ballY}px))`;
-                }, 3000);
-            }, 2000);
+                ball.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                ball.style.transform = `translate(calc(-50% + ${ballX}px), calc(-50% + ${ballY}px))`;
+            }, 4000);
         }
         
         // Mostrar resultado

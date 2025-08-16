@@ -213,6 +213,8 @@
         
         .wheel-numbers {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             border-radius: 50%;
@@ -800,7 +802,7 @@
                 numberElement.textContent = item.num;
                 
                 const angle = (index * 360) / rouletteNumbers.length;
-                const radius = 80; // Radio muy reducido para asegurar posicionamiento interno
+                const radius = 160; // Radio restaurado ahora que el contenedor está centrado
                 const x = Math.cos((angle - 90) * Math.PI / 180) * radius;
                 const y = Math.sin((angle - 90) * Math.PI / 180) * radius;
                 

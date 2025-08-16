@@ -248,6 +248,16 @@
             color: white;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
             border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .ball-hole {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #000 30%, #333 70%, #666 100%);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(255, 255, 255, 0.2);
+            border: 1px solid #444;
             backdrop-filter: blur(3px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
             transform-origin: center;
@@ -854,22 +864,24 @@
             wheelNumbers.innerHTML = ''; // Limpiar números existentes
             
             rouletteNumbers.forEach((item, index) => {
+                // Crear número
                 const numberElement = document.createElement('div');
                 numberElement.className = 'number';
                 numberElement.textContent = item.num;
                 
                 // Calcular ángulo con mejor distribución
                 const angle = (index * 360) / rouletteNumbers.length;
-                const radius = 240; // Radio ajustado para posicionar números al final de los triángulos
+                const numberRadius = 200; // Radio reducido para posicionar números dentro de los triángulos
+                const holeRadius = 250; // Radio para los agujeros al final de los triángulos
                 
-                // Convertir a radianes y calcular posición
+                // Convertir a radianes y calcular posición del número
                 const angleRad = (angle - 90) * Math.PI / 180;
-                const x = Math.cos(angleRad) * radius;
-                const y = Math.sin(angleRad) * radius;
+                const numberX = Math.cos(angleRad) * numberRadius;
+                const numberY = Math.sin(angleRad) * numberRadius;
                 
-                // Posicionamiento centrado mejorado
-                numberElement.style.left = `calc(50% + ${x}px - 12px)`;
-                numberElement.style.top = `calc(50% + ${y}px - 12px)`;
+                // Posicionamiento centrado mejorado del número
+                numberElement.style.left = `calc(50% + ${numberX}px - 12px)`;
+                numberElement.style.top = `calc(50% + ${numberY}px - 12px)`;
                 numberElement.style.transform = `rotate(${angle}deg)`;
                 
                 // Añadir color de fondo según el tipo de número
@@ -882,6 +894,19 @@
                 }
                 
                 wheelNumbers.appendChild(numberElement);
+                
+                // Crear agujero al final del triángulo
+                const holeElement = document.createElement('div');
+                holeElement.className = 'ball-hole';
+                
+                // Calcular posición del agujero
+                const holeX = Math.cos(angleRad) * holeRadius;
+                const holeY = Math.sin(angleRad) * holeRadius;
+                
+                holeElement.style.left = `calc(50% + ${holeX}px - 8px)`;
+                holeElement.style.top = `calc(50% + ${holeY}px - 8px)`;
+                
+                wheelNumbers.appendChild(holeElement);
             });
         }
         
@@ -1005,25 +1030,35 @@
                 calculateWinnings(winningNumber);
                 gameState.isSpinning = false;
                 document.getElementById('spin-btn').disabled = false;
-            }, 8500);
+            }, 5500);
         }
         
         function animateRealisticBall(ball, wheelRotation, targetAngle) {
-            // Fase 1: Bola gira por el borde amarillo (4 segundos)
-            const borderRadius = 260; // Radio del borde amarillo
-            ball.style.transition = 'transform 4s linear';
-            ball.style.transform = `translate(-50%, -50%) rotate(${-wheelRotation * 1.5}deg) translateX(${borderRadius}px) rotate(${wheelRotation * 1.5}deg)`;
+            // Fase 1: Bola gira por el borde exterior (3 segundos)
+            const borderRadius = 260;
+            let currentAngle = 0;
+            const rotationSpeed = 360; // grados por segundo
+            
+            const borderAnimation = setInterval(() => {
+                currentAngle += rotationSpeed / 60; // 60 FPS aproximadamente
+                const angleRad = (currentAngle - 90) * Math.PI / 180;
+                const x = Math.cos(angleRad) * borderRadius;
+                const y = Math.sin(angleRad) * borderRadius;
+                ball.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            }, 16);
             
             setTimeout(() => {
-                // Fase 2: Bola rebota y cae en un número (4 segundos)
-                const finalRadius = 240;
-                const ballFinalAngle = -wheelRotation * 0.2 + targetAngle;
+                clearInterval(borderAnimation);
+                
+                // Fase 2: Bola cae directamente al agujero (2 segundos)
+                const finalRadius = 250; // Radio de los agujeros
+                const ballFinalAngle = targetAngle;
                 const ballX = Math.cos((ballFinalAngle - 90) * Math.PI / 180) * finalRadius;
                 const ballY = Math.sin((ballFinalAngle - 90) * Math.PI / 180) * finalRadius;
                 
-                ball.style.transition = 'transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                ball.style.transition = 'transform 2s cubic-bezier(0.5, 0.0, 0.5, 1)';
                 ball.style.transform = `translate(calc(-50% + ${ballX}px), calc(-50% + ${ballY}px))`;
-            }, 4000);
+            }, 3000);
         }
         
         // Mostrar resultado

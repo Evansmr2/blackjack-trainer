@@ -81,6 +81,7 @@
             max-width: 500px;
             height: 400px;
             margin: 0 auto 30px;
+            perspective: 800px;
         }
 
         .wheel {
@@ -88,6 +89,8 @@
             height: 100%;
             position: relative;
             transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: rotateX(15deg);
+            transform-style: preserve-3d;
         }
 
         .wheel-base {
@@ -173,6 +176,7 @@
             z-index: 10;
             transform: translate(-50%, -50%);
             transition: all 4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: center;
         }
 
 
@@ -491,12 +495,25 @@
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(1440deg); }
+            from { transform: rotateX(15deg) rotateZ(0deg); }
+            to { transform: rotateX(15deg) rotateZ(1440deg); }
+        }
+
+        @keyframes ballSpin {
+            0% { 
+                transform: translate(-50%, -50%) rotate(0deg) translateX(140px) rotate(0deg);
+            }
+            100% { 
+                transform: translate(-50%, -50%) rotate(-1800deg) translateX(140px) rotate(1800deg);
+            }
         }
 
         .spinning {
             animation: spin 4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+
+        .ball-spinning {
+            animation: ballSpin 4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
         }
 
         @media (max-width: 1200px) {
@@ -977,19 +994,31 @@
             // Animar la rueda
             const wheel = document.getElementById('wheel');
             const ball = document.getElementById('ball');
-            wheel.style.transform = `rotateZ(${finalRotation}deg)`;
             
-            // Animar la canica en dirección opuesta
-            const ballSpins = Math.floor(Math.random() * 3) + 3; // 3-6 vueltas para la canica
-            const ballFinalAngle = targetAngle + 180; // Posición opuesta a donde para la rueda
-            const ballTotalRotation = -(ballSpins * 360 + ballFinalAngle); // Dirección opuesta
+            // Limpiar animaciones previas
+            wheel.classList.remove('spinning');
+            ball.classList.remove('ball-spinning');
             
-            // Calcular posición de la canica en el borde
-            const radius = 160; // Radio desde el centro
-            const ballX = Math.cos((ballFinalAngle * Math.PI) / 180) * radius;
-            const ballY = Math.sin((ballFinalAngle * Math.PI) / 180) * radius;
+            // Resetear transforms
+            wheel.style.transform = 'rotateX(15deg) rotateZ(0deg)';
+            ball.style.transform = 'translate(-50%, -50%)';
             
-            ball.style.transform = `translate(${ballX}px, ${ballY}px) rotate(${ballTotalRotation}deg)`;
+            // Forzar reflow
+            wheel.offsetHeight;
+            ball.offsetHeight;
+            
+            // Aplicar nuevas animaciones
+            wheel.classList.add('spinning');
+            ball.classList.add('ball-spinning');
+            
+            // Después de la animación, posicionar la bola en el número ganador
+            setTimeout(() => {
+                const radius = 140;
+                const ballX = Math.cos((targetAngle * Math.PI) / 180) * radius;
+                const ballY = Math.sin((targetAngle * Math.PI) / 180) * radius;
+                ball.style.transform = `translate(calc(-50% + ${ballX}px), calc(-50% + ${ballY}px))`;
+                wheel.style.transform = `rotateX(15deg) rotateZ(${finalRotation}deg)`;
+            }, 3800);
             
             // Mostrar resultado después de la animación
             setTimeout(() => {

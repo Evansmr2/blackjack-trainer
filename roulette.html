@@ -800,7 +800,7 @@
                 numberElement.textContent = item.num;
                 
                 const angle = (index * 360) / rouletteNumbers.length;
-                const radius = 140; // Reducido significativamente para estar dentro del círculo
+                const radius = 120; // Radio reducido para mantener números dentro del círculo
                 const x = Math.cos((angle - 90) * Math.PI / 180) * radius;
                 const y = Math.sin((angle - 90) * Math.PI / 180) * radius;
                 
